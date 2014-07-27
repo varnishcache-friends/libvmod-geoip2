@@ -1,0 +1,61 @@
+varnishtest "Test geoip2 vmod"
+
+server s1 {
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topbuild}/data/GeoLite2-City.mmdb ${tmpdir}"
+
+varnish v1 -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		geoip2.init("${tmpdir}/GeoLite2-City.mmdb");
+	}
+
+	sub vcl_deliver {
+		set resp.http.x-city = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "city/names/en");
+		set resp.http.x-country = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "country/names/en");
+		set resp.http.x-country-id = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "registered_country/geoname_id");
+		set resp.http.x-country-iso = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "country/iso_code");
+		set resp.http.x-continent = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "continent/names/en");
+		set resp.http.x-latitude = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "location/latitude");
+		set resp.http.x-longitude = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "location/longitude");
+		set resp.http.x-timezone = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "location/time_zone");
+		set resp.http.x-subdivision0 = geoip2.lookup(
+		    std.ip("200.16.98.2", "0.0.0.0"),
+		    "subdivisions/0/names/en");
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.x-city == "Buenos Aires"
+	expect resp.http.x-continent == "South America"
+	expect resp.http.x-country == "Argentina"
+	expect resp.http.x-country-id == "3865483"
+	expect resp.http.x-country-iso == "AR"
+	expect resp.http.x-latitude == "-34.587500"
+	expect resp.http.x-longitude == "-58.672500"
+	expect resp.http.x-timezone == "America/Argentina/Buenos_Aires"
+	expect resp.http.x-subdivision0 == "Buenos Aires F.D."
+} -run
