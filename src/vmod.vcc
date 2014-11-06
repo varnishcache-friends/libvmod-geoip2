@@ -28,6 +28,6 @@ $Module geoip2 3
 
 $Function VOID init(PRIV_VCL, STRING)
 
-$Function STRING lookup(PRIV_VCL, IP, STRING)
+$Function STRING lookup(PRIV_VCL, STRING, IP)
 
 $Function VOID close(PRIV_VCL)

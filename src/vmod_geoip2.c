@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <inttypes.h>
 #include <stdlib.h>
 
 #include <maxminddb.h>
@@ -38,6 +37,10 @@
 
 #include "vcc_if.h"
 
+#ifndef VRT_CTX
+#define VRT_CTX		const struct vrt_ctx *ctx
+#endif
+
 struct vmod_geoip2 {
 	unsigned		magic;
 #define VMOD_GEOIP2_MAGIC	 	0x19800829
@@ -48,165 +51,166 @@ struct vmod_geoip2 {
 static void
 vmod_free(void *priv)
 {
-	struct vmod_geoip2 *v;
+	struct vmod_geoip2 *vp;
 
-	CAST_OBJ_NOTNULL(v, priv, VMOD_GEOIP2_MAGIC);
+	CAST_OBJ_NOTNULL(vp, priv, VMOD_GEOIP2_MAGIC);
+	MMDB_close(&vp->mmdb);
+	FREE_OBJ(vp);
+}
 
-	if (v->mmdb.filename)
-		MMDB_close(&v->mmdb);
+size_t
+lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
+    char *dst, size_t size)
+{
+	MMDB_lookup_result_s res;
+	MMDB_entry_data_list_s *list;
+	MMDB_entry_data_s data;
+	MMDB_entry_s entry;
+	size_t len;
+	int error;
 
-	FREE_OBJ(v);
+	res = MMDB_lookup_sockaddr(mp, sa, &error);
+	if (error != MMDB_SUCCESS || !res.found_entry)
+		return (0);
+
+	error = MMDB_aget_value(&res.entry, &data, path);
+	if (error != MMDB_SUCCESS || !data.offset)
+		return (0);
+
+	entry.mmdb = mp;
+	entry.offset = data.offset;
+	error = MMDB_get_entry_data_list(&entry, &list);
+	if (error != MMDB_SUCCESS)
+		return (0);
+
+	switch (list->entry_data.type) {
+	case MMDB_DATA_TYPE_BOOLEAN:
+		len = snprintf(dst, size, "%s",
+		    list->entry_data.boolean ? "true" : "false");
+		break;
+
+	case MMDB_DATA_TYPE_UINT16:
+		len = snprintf(dst, size, "%u",
+		    list->entry_data.uint16);
+		break;
+
+	case MMDB_DATA_TYPE_UINT32:
+		len = snprintf(dst, size, "%u",
+		    list->entry_data.uint32);
+		break;
+
+	case MMDB_DATA_TYPE_INT32:
+		len = snprintf(dst, size, "%i",
+		    list->entry_data.int32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT64:
+		len = snprintf(dst, size, "%ju",
+		    (uintmax_t)list->entry_data.uint64);
+		break;
+
+	case MMDB_DATA_TYPE_FLOAT:
+		len = snprintf(dst, size, "%f",
+		    list->entry_data.float_value);
+		break;
+
+	case MMDB_DATA_TYPE_DOUBLE:
+		len = snprintf(dst, size, "%f",
+		    list->entry_data.double_value);
+		break;
+
+	case MMDB_DATA_TYPE_UTF8_STRING:
+		len = list->entry_data.data_size;
+		if (len < size) {
+			memcpy(dst, list->entry_data.utf8_string, len);
+			dst[len] = '\0';
+		}
+		break;
+
+	default:
+		/* Unsupported type */
+		len = 0;
+		break;
+	}
+
+	MMDB_free_entry_data_list(list);
+	return (len);
 }
 
 VCL_VOID __match_proto__(td_geoip2_init)
-vmod_init(const struct vrt_ctx *ctx, struct vmod_priv *priv,
-    VCL_STRING filename)
+vmod_init(VRT_CTX, struct vmod_priv *priv, VCL_STRING filename)
 {
-	struct vmod_geoip2 *v;
+	struct vmod_geoip2 *vp;
 	MMDB_s mmdb;
 
-	(void)ctx;
-
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	AN(priv);
 
 	if (MMDB_open(filename, MMDB_MODE_MMAP, &mmdb) != MMDB_SUCCESS)
 		return;
 
-	ALLOC_OBJ(v, VMOD_GEOIP2_MAGIC);
-	AN(v);
-
-	v->mmdb = mmdb;
-
+	ALLOC_OBJ(vp, VMOD_GEOIP2_MAGIC);
+	AN(vp);
+	vp->mmdb = mmdb;
 	priv->free = vmod_free;
-	priv->priv = v;
+	priv->priv = vp;
 }
 
-static char *
-vmod_lookup_common(const struct vrt_ctx *ctx, struct vmod_priv *priv,
-    VCL_IP addr, const char **lookup_path)
+VCL_VOID __match_proto__(td_geoip2_close)
+vmod_close(VRT_CTX, struct vmod_priv *priv)
 {
-	MMDB_lookup_result_s result;
-	MMDB_entry_data_list_s *entry_data_list;
-	MMDB_entry_data_s entry_data;
-	MMDB_entry_s entry;
-	struct vmod_geoip2 *v;
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	AN(priv);
+	if (priv->priv) {
+		vmod_free(priv->priv);
+		priv->priv = NULL;
+		priv->free = NULL;
+	}
+}
+
+VCL_STRING __match_proto__(td_geoip2_lookup)
+vmod_lookup(VRT_CTX, struct vmod_priv *priv, VCL_STRING lookup_path,
+    VCL_IP addr)
+{
+	struct vmod_geoip2 *vp;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
-	int error, size;
-	char *p;
+	const char **ap, *path[10];
+	char buf[100];
+	char *p, *last;
+	unsigned u, v;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
-
 	AN(priv);
+	CAST_OBJ_NOTNULL(vp, priv->priv, VMOD_GEOIP2_MAGIC);
 
-	CAST_OBJ_NOTNULL(v, priv->priv, VMOD_GEOIP2_MAGIC);
+	if (!lookup_path || !addr || strlen(lookup_path) >= sizeof(buf))
+		return (NULL);
 
-	if (!v->mmdb.filename)
+	if (!vp->mmdb.filename)
 		return (NULL);
 
 	sa = VSA_Get_Sockaddr(addr, &addrlen);
 	if (!sa)
 		return (NULL);
 
-        result = MMDB_lookup_sockaddr(&v->mmdb, sa, &error);
-	if (error != MMDB_SUCCESS || !result.found_entry)
-		return (NULL);
+	strncpy(buf, lookup_path, sizeof(buf));
 
-	error = MMDB_aget_value(&result.entry, &entry_data, lookup_path);
-	if (error != MMDB_SUCCESS || !entry_data.offset)
-		return (NULL);
-
-	entry.mmdb = &v->mmdb;
-	entry.offset = entry_data.offset;
-	error = MMDB_get_entry_data_list(&entry, &entry_data_list);
-	if (error != MMDB_SUCCESS)
-		return (NULL);
-
-	switch (entry_data_list->entry_data.type) {
-	case MMDB_DATA_TYPE_BOOLEAN:
-		p = WS_Printf(ctx->ws, "%s",
-		    entry_data_list->entry_data.boolean ?
-		    "true" : "false");
-		break;
-
-	case MMDB_DATA_TYPE_UINT16:
-		p = WS_Printf(ctx->ws, "%u",
-		    entry_data_list->entry_data.uint16);
-		break;
-
-	case MMDB_DATA_TYPE_UINT32:
-		p = WS_Printf(ctx->ws, "%u",
-		    entry_data_list->entry_data.uint32);
-		break;
-
-	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i",
-		    entry_data_list->entry_data.int32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT64:
-		p = WS_Printf(ctx->ws, "%" PRIu64,
-		    entry_data_list->entry_data.uint64);
-		break;
-
-	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f",
-		    entry_data_list->entry_data.float_value);
-		break;
-
-	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f",
-		    entry_data_list->entry_data.double_value);
-		break;
-
-	case MMDB_DATA_TYPE_UTF8_STRING:
-		size = entry_data_list->entry_data.data_size;
-		p = WS_Alloc(ctx->ws, size + 1);
-		if (p) {
-			memcpy(p, entry_data_list->entry_data.utf8_string,
-			    size);
-			p[size] = '\0';
-		}
-		break;
-	}
-
-	MMDB_free_entry_data_list(entry_data_list);
-	return (p);
-}
-
-VCL_STRING __match_proto__(td_geoip2_lookup)
-vmod_lookup(const struct vrt_ctx *ctx, struct vmod_priv *priv, VCL_IP addr,
-    VCL_STRING path)
-{
-	const char **ap, *argv[10];
-	char *p, *s;
-	char str[100];
-
-	if (!path || strlen(path) >= sizeof(str))
-		return (NULL);
-
-	strncpy(str, path, sizeof(str));
-
-	for (p = str, ap = argv; ap < &argv[9] &&
-	    (*ap = strtok_r(p, "/", &s)) != NULL; p = NULL) {
+	for (p = buf, ap = path; ap < &path[9] &&
+	    (*ap = strtok_r(p, "/", &last)) != NULL; p = NULL) {
 		if (**ap != '\0')
 			ap++;
 	}
 	*ap = NULL;
 
-	return (vmod_lookup_common(ctx, priv, addr, argv));
-}
-
-VCL_VOID __match_proto__(td_geoip2_close)
-vmod_close(const struct vrt_ctx *ctx, struct vmod_priv *priv)
-{
-	(void)ctx;
-
-	AN(priv);
-
-	if (priv->priv) {
-		vmod_free(priv->priv);
-		priv->priv = NULL;
-		priv->free = NULL;
+	u = WS_Reserve(ctx->ws, 0);
+	p = ctx->ws->f;
+	v = lookup_common(&vp->mmdb, path, sa, p, u);
+	if (!v || v >= u) {
+		WS_Release(ctx->ws, 0);
+		return (NULL);
+	} else {
+		WS_Release(ctx->ws, v + 1);
+		return (p);
 	}
 }

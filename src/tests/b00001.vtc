@@ -1,4 +1,4 @@
-varnishtest "Test geoip2 vmod"
+varnishtest "Test various lookups"
 
 server s1 {
 	rxreq
@@ -17,32 +17,32 @@ varnish v1 -vcl+backend {
 
 	sub vcl_deliver {
 		set resp.http.x-city = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "city/names/en");
+		    "city/names/en",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-country = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "country/names/en");
+		    "country/names/en",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-country-id = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "registered_country/geoname_id");
+		    "registered_country/geoname_id",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-country-iso = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "country/iso_code");
+		    "country/iso_code",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-continent = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "continent/names/en");
+		    "continent/names/en",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-latitude = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "location/latitude");
+		    "location/latitude",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-longitude = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "location/longitude");
+		    "location/longitude",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-timezone = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "location/time_zone");
+		    "location/time_zone",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.x-subdivision0 = geoip2.lookup(
-		    std.ip("200.16.98.2", "0.0.0.0"),
-		    "subdivisions/0/names/en");
+		    "subdivisions/0/names/en",
+		    std.ip("200.16.98.2", "0.0.0.0"));
 	}
 } -start
 
