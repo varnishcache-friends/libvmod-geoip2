@@ -41,22 +41,12 @@
 #define VRT_CTX		const struct vrt_ctx *ctx
 #endif
 
-struct vmod_geoip2 {
+struct vmod_geoip2_geoip2 {
 	unsigned		magic;
 #define VMOD_GEOIP2_MAGIC	 	0x19800829
 	MMDB_s			mmdb;
 };
 
-
-static void
-vmod_free(void *priv)
-{
-	struct vmod_geoip2 *vp;
-
-	CAST_OBJ_NOTNULL(vp, priv, VMOD_GEOIP2_MAGIC);
-	MMDB_close(&vp->mmdb);
-	FREE_OBJ(vp);
-}
 
 size_t
 lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
@@ -137,42 +127,44 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
 	return (len);
 }
 
-VCL_VOID __match_proto__(td_geoip2_init)
-vmod_init(VRT_CTX, struct vmod_priv *priv, VCL_STRING filename)
+VCL_VOID __match_proto__(td_geoip2_geoip2__init)
+vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
+    const char *vcl_name, VCL_STRING filename)
 {
-	struct vmod_geoip2 *vp;
+	struct vmod_geoip2_geoip2 *vp;
 	MMDB_s mmdb;
 
+	(void)vcl_name;
+
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
-	AN(priv);
+	AN(vpp);
+	AZ(*vpp);
 
 	if (MMDB_open(filename, MMDB_MODE_MMAP, &mmdb) != MMDB_SUCCESS)
 		return;
 
 	ALLOC_OBJ(vp, VMOD_GEOIP2_MAGIC);
 	AN(vp);
+	*vpp = vp;
 	vp->mmdb = mmdb;
-	priv->free = vmod_free;
-	priv->priv = vp;
 }
 
-VCL_VOID __match_proto__(td_geoip2_close)
-vmod_close(VRT_CTX, struct vmod_priv *priv)
+VCL_VOID __match_proto__(td_geoip2_geoip2__fini)
+vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 {
-	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
-	AN(priv);
-	if (priv->priv) {
-		vmod_free(priv->priv);
-		priv->priv = NULL;
-		priv->free = NULL;
-	}
+	struct vmod_geoip2_geoip2 *vp;
+
+	vp = *vpp;
+	*vpp = NULL;
+	CHECK_OBJ_NOTNULL(vp, VMOD_GEOIP2_MAGIC);
+	MMDB_close(&vp->mmdb);
+	FREE_OBJ(vp);
 }
 
-VCL_STRING __match_proto__(td_geoip2_lookup)
-vmod_lookup(VRT_CTX, struct vmod_priv *priv, VCL_STRING lookup_path,
-    VCL_IP addr)
+VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
+vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
+    VCL_STRING lookup_path, VCL_IP addr)
 {
-	struct vmod_geoip2 *vp;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
 	const char **ap, *path[10];
@@ -181,8 +173,7 @@ vmod_lookup(VRT_CTX, struct vmod_priv *priv, VCL_STRING lookup_path,
 	unsigned u, v;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
-	AN(priv);
-	CAST_OBJ_NOTNULL(vp, priv->priv, VMOD_GEOIP2_MAGIC);
+	AN(vp);
 
 	if (!lookup_path || !addr || strlen(lookup_path) >= sizeof(buf))
 		return (NULL);

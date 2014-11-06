@@ -26,8 +26,6 @@
 
 $Module geoip2 3
 
-$Function VOID init(PRIV_VCL, STRING)
+$Object geoip2(STRING)
 
-$Function STRING lookup(PRIV_VCL, STRING, IP)
-
-$Function VOID close(PRIV_VCL)
+$Method STRING .lookup(STRING, IP)

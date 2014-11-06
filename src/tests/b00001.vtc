@@ -5,42 +5,42 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topbuild}/data/GeoLite2-City.mmdb ${tmpdir}"
+shell "cp ${vmod_topbuild}/data/*.mmdb ${tmpdir}"
 
 varnish v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
 	sub vcl_init {
-		geoip2.init("${tmpdir}/GeoLite2-City.mmdb");
+		new db = geoip2.geoip2("${tmpdir}/GeoLite2-City.mmdb");
 	}
 
 	sub vcl_deliver {
-		set resp.http.x-city = geoip2.lookup(
+		set resp.http.x-city = db.lookup(
 		    "city/names/en",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country = geoip2.lookup(
+		set resp.http.x-country = db.lookup(
 		    "country/names/en",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country-id = geoip2.lookup(
+		set resp.http.x-country-id = db.lookup(
 		    "registered_country/geoname_id",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country-iso = geoip2.lookup(
+		set resp.http.x-country-iso = db.lookup(
 		    "country/iso_code",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-continent = geoip2.lookup(
+		set resp.http.x-continent = db.lookup(
 		    "continent/names/en",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-latitude = geoip2.lookup(
+		set resp.http.x-latitude = db.lookup(
 		    "location/latitude",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-longitude = geoip2.lookup(
+		set resp.http.x-longitude = db.lookup(
 		    "location/longitude",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-timezone = geoip2.lookup(
+		set resp.http.x-timezone = db.lookup(
 		    "location/time_zone",
 		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-subdivision0 = geoip2.lookup(
+		set resp.http.x-subdivision0 = db.lookup(
 		    "subdivisions/0/names/en",
 		    std.ip("200.16.98.2", "0.0.0.0"));
 	}
