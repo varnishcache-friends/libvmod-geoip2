@@ -1,0 +1,37 @@
+varnishtest "Test error cases"
+
+server s1 {
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topbuild}/data/GeoLite2-City.mmdb ${tmpdir}"
+
+varnish v1 -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		geoip2.init("${tmpdir}/GeoLite2-City.mmdb");
+	}
+
+	sub vcl_deliver {
+		set resp.http.path-not-found = geoip2.lookup(
+		    "non/existent/path",
+		    std.ip("200.16.98.2", "0.0.0.0"));
+		set resp.http.type-not-supported = geoip2.lookup(
+		    "city/names",
+		    std.ip("200.16.98.2", "0.0.0.0"));
+		set resp.http.addr-not-found = geoip2.lookup(
+		    "city/names/en",
+		    std.ip("1.1.1.1", "0.0.0.0"));
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.path-not-found == ""
+	expect resp.http.type-not-supported == ""
+	expect resp.http.addr-not-found == ""
+} -run
