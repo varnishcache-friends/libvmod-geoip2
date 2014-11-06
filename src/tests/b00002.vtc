@@ -24,7 +24,7 @@ varnish v1 -vcl+backend {
 		    std.ip("200.16.98.2", "0.0.0.0"));
 		set resp.http.addr-not-found = db.lookup(
 		    "city/names/en",
-		    std.ip("1.1.1.1", "0.0.0.0"));
+		    std.ip("0.0.0.0", "0.0.0.0"));
 	}
 } -start
 
