@@ -54,7 +54,6 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
 {
 	MMDB_lookup_result_s res;
 	MMDB_entry_data_s data;
-	MMDB_entry_s entry;
 	size_t len;
 	int error;
 
