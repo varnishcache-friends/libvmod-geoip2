@@ -53,7 +53,6 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
     char *dst, size_t size)
 {
 	MMDB_lookup_result_s res;
-	MMDB_entry_data_list_s *list;
 	MMDB_entry_data_s data;
 	MMDB_entry_s entry;
 	size_t len;
@@ -67,52 +66,40 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
 	if (error != MMDB_SUCCESS || !data.offset)
 		return (0);
 
-	entry.mmdb = mp;
-	entry.offset = data.offset;
-	error = MMDB_get_entry_data_list(&entry, &list);
-	if (error != MMDB_SUCCESS)
-		return (0);
-
-	switch (list->entry_data.type) {
+	switch (data.type) {
 	case MMDB_DATA_TYPE_BOOLEAN:
-		len = snprintf(dst, size, "%s",
-		    list->entry_data.boolean ? "true" : "false");
+		len = snprintf(dst, size, "%s", data.boolean ?
+		    "true" : "false");
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:
-		len = snprintf(dst, size, "%u",
-		    list->entry_data.uint16);
+		len = snprintf(dst, size, "%u", data.uint16);
 		break;
 
 	case MMDB_DATA_TYPE_UINT32:
-		len = snprintf(dst, size, "%u",
-		    list->entry_data.uint32);
+		len = snprintf(dst, size, "%u", data.uint32);
 		break;
 
 	case MMDB_DATA_TYPE_INT32:
-		len = snprintf(dst, size, "%i",
-		    list->entry_data.int32);
+		len = snprintf(dst, size, "%i", data.int32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT64:
-		len = snprintf(dst, size, "%ju",
-		    (uintmax_t)list->entry_data.uint64);
+		len = snprintf(dst, size, "%ju", (uintmax_t)data.uint64);
 		break;
 
 	case MMDB_DATA_TYPE_FLOAT:
-		len = snprintf(dst, size, "%f",
-		    list->entry_data.float_value);
+		len = snprintf(dst, size, "%f", data.float_value);
 		break;
 
 	case MMDB_DATA_TYPE_DOUBLE:
-		len = snprintf(dst, size, "%f",
-		    list->entry_data.double_value);
+		len = snprintf(dst, size, "%f", data.double_value);
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
-		len = list->entry_data.data_size;
+		len = data.data_size;
 		if (len < size) {
-			memcpy(dst, list->entry_data.utf8_string, len);
+			memcpy(dst, data.utf8_string, len);
 			dst[len] = '\0';
 		}
 		break;
@@ -123,7 +110,6 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
 		break;
 	}
 
-	MMDB_free_entry_data_list(list);
 	return (len);
 }
 
