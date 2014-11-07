@@ -63,7 +63,7 @@ lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
 		return (0);
 
 	error = MMDB_aget_value(&res.entry, &data, path);
-	if (error != MMDB_SUCCESS || !data.offset)
+	if (error != MMDB_SUCCESS || !data.has_data)
 		return (0);
 
 	switch (data.type) {
