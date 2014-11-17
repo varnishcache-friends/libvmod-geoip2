@@ -5,57 +5,70 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topbuild}/data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topbuild}/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
 varnish v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
 	sub vcl_init {
-		new db = geoip2.geoip2("${tmpdir}/GeoLite2-City.mmdb");
+		new db1 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db2 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-Connection-Type-Test.mmdb");
+		new db3 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-ISP-Test.mmdb");
 	}
 
 	sub vcl_deliver {
-		set resp.http.x-city = db.lookup(
+		set resp.http.x-city = db1.lookup(
 		    "city/names/en",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-country = db1.lookup(
 		    "country/names/en",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country-id = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-country-id = db1.lookup(
 		    "registered_country/geoname_id",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-country-iso = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-country-iso = db1.lookup(
 		    "country/iso_code",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-continent = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-continent = db1.lookup(
 		    "continent/names/en",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-latitude = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-latitude = db1.lookup(
 		    "location/latitude",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-longitude = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-longitude = db1.lookup(
 		    "location/longitude",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-timezone = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-timezone = db1.lookup(
 		    "location/time_zone",
-		    std.ip("200.16.98.2", "0.0.0.0"));
-		set resp.http.x-subdivision0 = db.lookup(
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-subdivision0 = db1.lookup(
 		    "subdivisions/0/names/en",
-		    std.ip("200.16.98.2", "0.0.0.0"));
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-connection-type = db2.lookup(
+		    "connection_type",
+		    std.ip("1.0.128.1", "0.0.0.0"));
+		set resp.http.x-isp = db3.lookup(
+		    "isp",
+		    std.ip("1.0.128.1", "0.0.0.0"));
 	}
 } -start
 
 client c1 {
 	txreq
 	rxresp
-	expect resp.http.x-city == "Buenos Aires"
-	expect resp.http.x-continent == "South America"
-	expect resp.http.x-country == "Argentina"
-	expect resp.http.x-country-id == "3865483"
-	expect resp.http.x-country-iso == "AR"
-	expect resp.http.x-latitude == "-34.587500"
-	expect resp.http.x-longitude == "-58.672500"
-	expect resp.http.x-timezone == "America/Argentina/Buenos_Aires"
-	expect resp.http.x-subdivision0 == "Buenos Aires F.D."
+	expect resp.http.x-city == "London"
+	expect resp.http.x-continent == "Europe"
+	expect resp.http.x-country == "United Kingdom"
+	expect resp.http.x-country-id == "6252001"
+	expect resp.http.x-country-iso == "GB"
+	expect resp.http.x-latitude == "51.514200"
+	expect resp.http.x-longitude == "-0.093100"
+	expect resp.http.x-timezone == "Europe/London"
+	expect resp.http.x-subdivision0 == "England"
+	expect resp.http.x-connection-type == "Dialup"
+	expect resp.http.x-isp == "TOT Public Company Limited"
 } -run

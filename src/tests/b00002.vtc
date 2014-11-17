@@ -5,23 +5,23 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topbuild}/data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topbuild}/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
 varnish v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
 	sub vcl_init {
-		new db = geoip2.geoip2("${tmpdir}/GeoLite2-City.mmdb");
+		new db = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
 	}
 
 	sub vcl_deliver {
 		set resp.http.path-not-found = db.lookup(
 		    "non/existent/path",
-		    std.ip("200.16.98.2", "0.0.0.0"));
+		    std.ip("81.2.69.192", "0.0.0.0"));
 		set resp.http.type-not-supported = db.lookup(
 		    "city/names",
-		    std.ip("200.16.98.2", "0.0.0.0"));
+		    std.ip("81.2.69.192", "0.0.0.0"));
 		set resp.http.addr-not-found = db.lookup(
 		    "city/names/en",
 		    std.ip("0.0.0.0", "0.0.0.0"));
