@@ -48,70 +48,6 @@ struct vmod_geoip2_geoip2 {
 };
 
 
-size_t
-lookup_common(MMDB_s *mp, const char **path, const struct sockaddr *sa,
-    char *dst, size_t size)
-{
-	MMDB_lookup_result_s res;
-	MMDB_entry_data_s data;
-	size_t len;
-	int error;
-
-	res = MMDB_lookup_sockaddr(mp, sa, &error);
-	if (error != MMDB_SUCCESS || !res.found_entry)
-		return (0);
-
-	error = MMDB_aget_value(&res.entry, &data, path);
-	if (error != MMDB_SUCCESS || !data.has_data)
-		return (0);
-
-	switch (data.type) {
-	case MMDB_DATA_TYPE_BOOLEAN:
-		len = snprintf(dst, size, "%s", data.boolean ?
-		    "true" : "false");
-		break;
-
-	case MMDB_DATA_TYPE_UINT16:
-		len = snprintf(dst, size, "%u", data.uint16);
-		break;
-
-	case MMDB_DATA_TYPE_UINT32:
-		len = snprintf(dst, size, "%u", data.uint32);
-		break;
-
-	case MMDB_DATA_TYPE_INT32:
-		len = snprintf(dst, size, "%i", data.int32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT64:
-		len = snprintf(dst, size, "%ju", (uintmax_t)data.uint64);
-		break;
-
-	case MMDB_DATA_TYPE_FLOAT:
-		len = snprintf(dst, size, "%f", data.float_value);
-		break;
-
-	case MMDB_DATA_TYPE_DOUBLE:
-		len = snprintf(dst, size, "%f", data.double_value);
-		break;
-
-	case MMDB_DATA_TYPE_UTF8_STRING:
-		len = data.data_size;
-		if (len < size) {
-			memcpy(dst, data.utf8_string, len);
-			dst[len] = '\0';
-		}
-		break;
-
-	default:
-		/* Unsupported type */
-		len = 0;
-		break;
-	}
-
-	return (len);
-}
-
 VCL_VOID __match_proto__(td_geoip2_geoip2__init)
 vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
     const char *vcl_name, VCL_STRING filename)
@@ -150,12 +86,15 @@ VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
     VCL_STRING lookup_path, VCL_IP addr)
 {
+	MMDB_lookup_result_s res;
+	MMDB_entry_data_s data;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
 	const char **ap, *path[10];
 	char buf[100];
 	char *p, *last;
 	unsigned u, v;
+	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	AN(vp);
@@ -179,9 +118,60 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	}
 	*ap = NULL;
 
+	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
+	if (error != MMDB_SUCCESS || !res.found_entry)
+		return (NULL);
+
+	error = MMDB_aget_value(&res.entry, &data, path);
+	if (error != MMDB_SUCCESS || !data.has_data)
+		return (NULL);
+
 	u = WS_Reserve(ctx->ws, 0);
 	p = ctx->ws->f;
-	v = lookup_common(&vp->mmdb, path, sa, p, u);
+
+	switch (data.type) {
+	case MMDB_DATA_TYPE_BOOLEAN:
+		v = snprintf(p, u, "%s", data.boolean ?  "true" : "false");
+		break;
+
+	case MMDB_DATA_TYPE_UINT16:
+		v = snprintf(p, u, "%u", data.uint16);
+		break;
+
+	case MMDB_DATA_TYPE_UINT32:
+		v = snprintf(p, u, "%u", data.uint32);
+		break;
+
+	case MMDB_DATA_TYPE_INT32:
+		v = snprintf(p, u, "%i", data.int32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT64:
+		v = snprintf(p, u, "%ju", (uintmax_t)data.uint64);
+		break;
+
+	case MMDB_DATA_TYPE_FLOAT:
+		v = snprintf(p, u, "%f", data.float_value);
+		break;
+
+	case MMDB_DATA_TYPE_DOUBLE:
+		v = snprintf(p, u, "%f", data.double_value);
+		break;
+
+	case MMDB_DATA_TYPE_UTF8_STRING:
+		v = data.data_size;
+		if (v < u) {
+			memcpy(p, data.utf8_string, v);
+			p[v] = '\0';
+		}
+		break;
+
+	default:
+		/* Unsupported type */
+		v = 0;
+		break;
+	}
+
 	if (!v || v >= u) {
 		WS_Release(ctx->ws, 0);
 		return (NULL);
