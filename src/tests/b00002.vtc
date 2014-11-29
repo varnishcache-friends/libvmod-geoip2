@@ -12,17 +12,21 @@ varnish v1 -vcl+backend {
 	import std;
 
 	sub vcl_init {
-		new db = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db2 = geoip2.geoip2("${tmpdir}/non-existent.mmdb");
 	}
 
 	sub vcl_deliver {
-		set resp.http.path-not-found = db.lookup(
+		set resp.http.path-not-found = db1.lookup(
 		    "non/existent/path",
 		    std.ip("81.2.69.192", "0.0.0.0"));
-		set resp.http.type-not-supported = db.lookup(
+		set resp.http.type-not-supported = db1.lookup(
 		    "city/names",
 		    std.ip("81.2.69.192", "0.0.0.0"));
-		set resp.http.addr-not-found = db.lookup(
+		set resp.http.addr-not-found = db1.lookup(
+		    "city/names/en",
+		    std.ip("0.0.0.0", "0.0.0.0"));
+		set resp.http.missing-db = db2.lookup(
 		    "city/names/en",
 		    std.ip("0.0.0.0", "0.0.0.0"));
 	}
@@ -34,4 +38,5 @@ client c1 {
 	expect resp.http.path-not-found == ""
 	expect resp.http.type-not-supported == ""
 	expect resp.http.addr-not-found == ""
+	expect resp.http.missing-db == ""
 } -run
