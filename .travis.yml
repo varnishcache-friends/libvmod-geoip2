@@ -1,0 +1,11 @@
+language: c
+compiler:
+  - clang
+  - gcc
+before_install:
+  - sudo apt-get install -y libvarnishapi-dev
+  - ./autogen.sh
+  - git clone --recursive https://github.com/maxmind/libmaxminddb
+  - cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install
+script:
+  - ./configure && make CFLAGS="-Wall -Wextra -Werror" && make check
