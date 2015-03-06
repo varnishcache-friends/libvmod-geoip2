@@ -1,0 +1,5 @@
+libvmod-geoip2 (4.0.0) unstable; urgency=low
+
+  * Packaging for upstream.
+
+ -- Jennifer Lang <jennytoo@gmail.com>  Fri, 06 Mar 2015 18:06:49 +0000

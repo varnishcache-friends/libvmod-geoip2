@@ -1,0 +1,14 @@
+Source: libvmod-geoip2
+Section: web
+Priority: extra
+Maintainer: Federico G. Schwindt <fgsch@lodoss.net>
+Build-Depends: debhelper (>= 7), build-essential, dh-autoreconf,
+ libvarnishapi-dev (>= 4.0.0), libmaxminddb-dev
+Standards-Version: 3.8.1
+Vcs-Git: git://github.com/fgsch/libvmod-geoip2
+
+Package: libvmod-geoip2
+Architecture: any
+Depends: varnish (>= 4.0.0), libvarnishapi1 (>= 4.0.0), libmaxminddb0,
+ ${misc:Depends}
+Description: GeoIP2 VMOD for Varnish

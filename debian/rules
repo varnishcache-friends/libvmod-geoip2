@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+export DH_VERBOSE=1
+
+configure:
+	dh_autoreconf
+	./configure
+
+clean:
+	make clean
+	dh_autoreconf_clean
+	dh_clean
+
+override_dh_gencontrol:
+	if [ -n "$$DEBIAN_OVERRIDE_BINARY_VERSION" ]; then \
+		dh_gencontrol -- -v$$DEBIAN_OVERRIDE_BINARY_VERSION; \
+	else \
+		dh_gencontrol; \
+	fi
+
+%:
+	dh $@ --with autoreconf
