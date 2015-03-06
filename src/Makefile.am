@@ -34,4 +34,5 @@ EXTRA_DIST = vmod.vcc \
 CLEANFILES = $(builddir)/vcc_if.c \
 	$(builddir)/vcc_if.h \
 	$(builddir)/vmod_geoip2.man.rst \
-	$(builddir)/vmod_geoip2.rst
+	$(builddir)/vmod_geoip2.rst \
+	$(builddir)/$(dist_man_MANS)
