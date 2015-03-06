@@ -6,7 +6,7 @@ configure:
 	./configure
 
 clean:
-	make clean
+	dh_auto_clean
 	dh_autoreconf_clean
 	dh_clean
 
