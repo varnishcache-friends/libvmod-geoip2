@@ -104,12 +104,11 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	if (!vp)
 		return (NULL);
 
-	if (!lookup_path || !addr || strlen(lookup_path) >= sizeof(buf))
+	if (!lookup_path || strlen(lookup_path) >= sizeof(buf))
 		return (NULL);
 
 	sa = VSA_Get_Sockaddr(addr, &addrlen);
-	if (!sa)
-		return (NULL);
+	AN(sa);
 
 	strncpy(buf, lookup_path, sizeof(buf));
 
