@@ -54,6 +54,7 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 {
 	struct vmod_geoip2_geoip2 *vp;
 	MMDB_s mmdb;
+	int error;
 
 	(void)vcl_name;
 
@@ -61,7 +62,8 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 	AN(vpp);
 	AZ(*vpp);
 
-	if (MMDB_open(filename, MMDB_MODE_MMAP, &mmdb) != MMDB_SUCCESS)
+	error = MMDB_open(filename, MMDB_MODE_MMAP, &mmdb);
+	if (error != MMDB_SUCCESS)
 		return;
 
 	ALLOC_OBJ(vp, VMOD_GEOIP2_MAGIC);
@@ -120,11 +122,17 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	*ap = NULL;
 
 	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
-	if (error != MMDB_SUCCESS || !res.found_entry)
+	if (error != MMDB_SUCCESS)
+		return (NULL);
+
+	if (!res.found_entry)
 		return (NULL);
 
 	error = MMDB_aget_value(&res.entry, &data, path);
-	if (error != MMDB_SUCCESS || !data.has_data)
+	if (error != MMDB_SUCCESS)
+		return (NULL);
+
+	if (!data.has_data)
 		return (NULL);
 
 	u = WS_Reserve(ctx->ws, 0);
