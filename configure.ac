@@ -3,7 +3,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/vmod.vcc)
 AM_CONFIG_HEADER(config.h)
 
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign color-tests parallel-tests])
 
 AC_DISABLE_STATIC
 
