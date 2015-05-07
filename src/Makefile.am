@@ -14,7 +14,10 @@ nodist_libvmod_geoip2_la_SOURCES = \
 
 dist_man_MANS = vmod_geoip2.3
 
-VMOD_TESTS = tests/*.vtc
+VTC_LOG_COMPILER = $(VARNISHTEST) -v -i \
+	-Dvarnishd=$(VARNISHD) -Dvmod_topbuild=$(abs_top_builddir)
+TEST_EXTENSIONS = .vtc
+TESTS = @VMOD_TESTS@
 
 $(libvmod_geoip2_la_OBJECTS): vcc_if.h
 
@@ -24,12 +27,8 @@ vcc_if.c vcc_if.h vmod_geoip2.man.rst: $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
 vmod_geoip2.3: vmod_geoip2.man.rst
 	${RST2MAN} $? $@
 
-check:
-	$(VARNISHTEST) -Dvarnishd=$(VARNISHD) \
-	    -Dvmod_topbuild=$(abs_top_builddir) $(VMOD_TESTS)
-
 EXTRA_DIST = vmod.vcc \
-	$(VMOD_TESTS)
+	$(TESTS)
 
 CLEANFILES = $(builddir)/vcc_if.c \
 	$(builddir)/vcc_if.h \

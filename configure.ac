@@ -27,5 +27,8 @@ VARNISH_VMODTOOL
 AC_PATH_PROG([VARNISHTEST], [varnishtest])
 AC_PATH_PROG([VARNISHD], [varnishd])
 
+VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
+AC_SUBST(VMOD_TESTS)
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
