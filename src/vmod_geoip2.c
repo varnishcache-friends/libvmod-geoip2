@@ -47,6 +47,8 @@ struct vmod_geoip2_geoip2 {
 	MMDB_s			mmdb;
 };
 
+#define COMPONENT_MAX		10
+
 
 VCL_VOID __match_proto__(td_geoip2_geoip2__init)
 vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
@@ -95,7 +97,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	MMDB_entry_data_s data;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
-	const char **ap, *path[10];
+	const char **ap, *path[COMPONENT_MAX];
 	char buf[100];
 	char *p, *last;
 	unsigned u, v;
@@ -121,7 +123,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	strncpy(buf, lookup_path, sizeof(buf));
 
-	for (p = buf, ap = path; ap < &path[9] &&
+	for (p = buf, ap = path; ap < &path[COMPONENT_MAX - 1] &&
 	    (*ap = strtok_r(p, "/", &last)) != NULL; p = NULL) {
 		if (**ap != '\0')
 			ap++;
