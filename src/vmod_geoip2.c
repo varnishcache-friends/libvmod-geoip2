@@ -112,6 +112,13 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	sa = VSA_Get_Sockaddr(addr, &addrlen);
 	AN(sa);
 
+	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
+	if (error != MMDB_SUCCESS)
+		return (NULL);
+
+	if (!res.found_entry)
+		return (NULL);
+
 	strncpy(buf, lookup_path, sizeof(buf));
 
 	for (p = buf, ap = path; ap < &path[9] &&
@@ -120,13 +127,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 			ap++;
 	}
 	*ap = NULL;
-
-	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
-	if (error != MMDB_SUCCESS)
-		return (NULL);
-
-	if (!res.found_entry)
-		return (NULL);
 
 	error = MMDB_aget_value(&res.entry, &data, path);
 	if (error != MMDB_SUCCESS)
