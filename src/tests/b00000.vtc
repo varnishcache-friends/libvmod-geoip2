@@ -1,0 +1,46 @@
+varnishtest "Test various lookups"
+
+server s1 {
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topbuild}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+
+varnish v1 -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		new db1 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db2 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-Connection-Type-Test.mmdb");
+		new db3 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-ISP-Test.mmdb");
+	}
+
+	sub vcl_deliver {
+		set resp.http.x-city = db1.lookup(
+		    "city/names/en",
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.x-country = db1.lookup(
+		    "country/names/en",
+		    std.ip("2001:218::1", "::1"));
+		set resp.http.x-connection-type = db2.lookup(
+		    "connection_type",
+		    std.ip("1.0.128.1", "0.0.0.0"));
+		set resp.http.x-isp = db3.lookup(
+		    "isp",
+		    std.ip("1.0.128.1", "0.0.0.0"));
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.x-city == "London"
+	expect resp.http.x-country == "Japan"
+	expect resp.http.x-connection-type == "Dialup"
+	expect resp.http.x-isp == "TOT Public Company Limited"
+} -run
