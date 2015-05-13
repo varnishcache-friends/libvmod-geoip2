@@ -65,8 +65,11 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 	AZ(*vpp);
 
 	error = MMDB_open(filename, MMDB_MODE_MMAP, &mmdb);
-	if (error != MMDB_SUCCESS)
+	if (error != MMDB_SUCCESS) {
+		VSL(SLT_Error, 0, "geoip2.geoip2: %s",
+		    MMDB_strerror(error));
 		return;
+	}
 
 	ALLOC_OBJ(vp, VMOD_GEOIP2_MAGIC);
 	AN(vp);
@@ -91,58 +94,84 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 
 VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
-    VCL_STRING lookup_path, VCL_IP addr)
+    VCL_STRING path, VCL_IP addr)
 {
 	MMDB_lookup_result_s res;
 	MMDB_entry_data_s data;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
-	const char **ap, *path[COMPONENT_MAX];
+	const char **ap, *arrpath[COMPONENT_MAX];
 	char buf[100];
 	char *p, *last;
 	unsigned u, v;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	AN(addr);
 
-	if (!vp)
+	if (!vp) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: Database not open");
 		return (NULL);
+	}
 
-	if (!lookup_path || strlen(lookup_path) >= sizeof(buf))
+	if (!path || strlen(path) >= sizeof(buf)) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: Invalid or missing path (%s)",
+		    path ? path : "NULL");
 		return (NULL);
+	}
 
 	sa = VSA_Get_Sockaddr(addr, &addrlen);
 	AN(sa);
 
 	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
-	if (error != MMDB_SUCCESS)
+	if (error != MMDB_SUCCESS) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: MMDB_lookup_sockaddr: %s",
+		    MMDB_strerror(error));
 		return (NULL);
+	}
 
-	if (!res.found_entry)
+	if (!res.found_entry) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: No entry for this IP address (%s)",
+		    VRT_IP_string(ctx, addr));
 		return (NULL);
+	}
 
-	strncpy(buf, lookup_path, sizeof(buf));
+	strncpy(buf, path, sizeof(buf));
 
-	for (p = buf, ap = path; ap < &path[COMPONENT_MAX - 1] &&
+	for (p = buf, ap = arrpath; ap < &arrpath[COMPONENT_MAX - 1] &&
 	    (*ap = strtok_r(p, "/", &last)) != NULL; p = NULL) {
 		if (**ap != '\0')
 			ap++;
 	}
 	*ap = NULL;
 
-	error = MMDB_aget_value(&res.entry, &data, path);
-	if (error != MMDB_SUCCESS)
+	error = MMDB_aget_value(&res.entry, &data, arrpath);
+	if (error != MMDB_SUCCESS &&
+	    error != MMDB_LOOKUP_PATH_DOES_NOT_MATCH_DATA_ERROR) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: MMDB_aget_value: %s",
+		    MMDB_strerror(error));
 		return (NULL);
+	}
 
-	if (!data.has_data)
+	if (!data.has_data) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: No data for this path (%s)",
+		    path);
 		return (NULL);
+	}
 
 	u = WS_Reserve(ctx->ws, 0);
 	p = ctx->ws->f;
 
 	switch (data.type) {
 	case MMDB_DATA_TYPE_BOOLEAN:
-		v = snprintf(p, u, "%s", data.boolean ?  "true" : "false");
+		v = snprintf(p, u, "%s", data.boolean ?
+		    "true" : "false");
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:
@@ -178,12 +207,19 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	default:
-		/* Unsupported type */
-		v = 0;
+		error = 1;	/* Unsupported type */
 		break;
 	}
 
-	if (!v || v >= u) {
+	if (error || v >= u) {
+		if (error)
+			VSLb(ctx->vsl, SLT_Error,
+			    "geoip2.lookup: Unsupported data type (%d)",
+			    data.type);
+		else
+			VSLb(ctx->vsl, SLT_Error,
+			    "geoip2.lookup: Out of workspace (%u/%u)",
+			    v, u);
 		WS_Release(ctx->ws, 0);
 		return (NULL);
 	} else {
