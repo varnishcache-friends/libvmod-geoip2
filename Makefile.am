@@ -2,4 +2,4 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src
 
-doc_DATA = LICENSE
+dist_doc_DATA = LICENSE
