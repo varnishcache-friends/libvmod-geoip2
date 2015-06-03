@@ -21,16 +21,16 @@ varnish v1 -vcl+backend {
 	}
 
 	sub vcl_deliver {
-		set resp.http.x-city = db1.lookup(
+		set resp.http.city = db1.lookup(
 		    "city/names/en",
 		    std.ip("81.2.69.192", "0.0.0.0"));
-		set resp.http.x-country = db1.lookup(
+		set resp.http.country = db1.lookup(
 		    "country/names/en",
 		    std.ip("2001:218::1", "::1"));
-		set resp.http.x-connection-type = db2.lookup(
+		set resp.http.connection-type = db2.lookup(
 		    "connection_type",
 		    std.ip("1.0.128.1", "0.0.0.0"));
-		set resp.http.x-isp = db3.lookup(
+		set resp.http.isp = db3.lookup(
 		    "isp",
 		    std.ip("1.0.128.1", "0.0.0.0"));
 	}
@@ -39,8 +39,8 @@ varnish v1 -vcl+backend {
 client c1 {
 	txreq
 	rxresp
-	expect resp.http.x-city == "London"
-	expect resp.http.x-country == "Japan"
-	expect resp.http.x-connection-type == "Dialup"
-	expect resp.http.x-isp == "TOT Public Company Limited"
+	expect resp.http.city == "London"
+	expect resp.http.country == "Japan"
+	expect resp.http.connection-type == "Dialup"
+	expect resp.http.isp == "TOT Public Company Limited"
 } -run
