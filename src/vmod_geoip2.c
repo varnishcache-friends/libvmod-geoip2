@@ -48,6 +48,7 @@ struct vmod_geoip2_geoip2 {
 };
 
 #define COMPONENT_MAX		10
+#define LOOKUP_PATH_MAX		100
 
 
 VCL_VOID __match_proto__(td_geoip2_geoip2__init)
@@ -101,7 +102,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const struct sockaddr *sa;
 	socklen_t addrlen;
 	const char **ap, *arrpath[COMPONENT_MAX];
-	char buf[100];
+	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
 	unsigned u, v;
 	int error;
@@ -207,19 +208,18 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	default:
-		error = 1;	/* Unsupported type */
-		break;
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: Unsupported data type (%d)",
+		    data.type);
+		WS_Release(ctx->ws, 0);
+		return (NULL);
+		/* NOTREACHED */
 	}
 
-	if (error || v >= u) {
-		if (error)
-			VSLb(ctx->vsl, SLT_Error,
-			    "geoip2.lookup: Unsupported data type (%d)",
-			    data.type);
-		else
-			VSLb(ctx->vsl, SLT_Error,
-			    "geoip2.lookup: Out of workspace (%u/%u)",
-			    v, u);
+	if (v >= u) {
+		VSLb(ctx->vsl, SLT_Error,
+		    "geoip2.lookup: Out of workspace (%u/%u)",
+		    v, u);
 		WS_Release(ctx->ws, 0);
 		return (NULL);
 	} else {
