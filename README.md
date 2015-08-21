@@ -17,7 +17,8 @@ To build this VMOD you will need:
 * pkg-config
 * python-docutils
 * libvarnishapi-dev in Debian/Ubuntu or varnish-libs-devel in CentOS/RedHat
-* libmaxminddb-dev in recent Debian/Ubuntu releases. See also https://github.com/maxmind/libmaxminddb
+* libmaxminddb-dev in recent Debian/Ubuntu releases. See also
+  https://github.com/maxmind/libmaxminddb
 
 If you are building from Git, you will also need:
 
