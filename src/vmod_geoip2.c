@@ -107,7 +107,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const char **ap, *arrpath[COMPONENT_MAX];
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
-	unsigned u, v;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -169,64 +168,51 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	u = WS_Reserve(ctx->ws, 0);
-	p = ctx->ws->f;
-
 	switch (data.type) {
 	case MMDB_DATA_TYPE_BOOLEAN:
-		v = snprintf(p, u, "%s", data.boolean ?
+		p = WS_Printf(ctx->ws, "%s", data.boolean ?
 		    "true" : "false");
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:
-		v = snprintf(p, u, "%u", data.uint16);
+		p = WS_Printf(ctx->ws, "%u", data.uint16);
 		break;
 
 	case MMDB_DATA_TYPE_UINT32:
-		v = snprintf(p, u, "%u", data.uint32);
+		p = WS_Printf(ctx->ws, "%u", data.uint32);
 		break;
 
 	case MMDB_DATA_TYPE_INT32:
-		v = snprintf(p, u, "%i", data.int32);
+		p = WS_Printf(ctx->ws, "%i", data.int32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT64:
-		v = snprintf(p, u, "%ju", (uintmax_t)data.uint64);
+		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
 		break;
 
 	case MMDB_DATA_TYPE_FLOAT:
-		v = snprintf(p, u, "%f", data.float_value);
+		p = WS_Printf(ctx->ws, "%f", data.float_value);
 		break;
 
 	case MMDB_DATA_TYPE_DOUBLE:
-		v = snprintf(p, u, "%f", data.double_value);
+		p = WS_Printf(ctx->ws, "%f", data.double_value);
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
-		v = data.data_size;
-		if (v < u) {
-			memcpy(p, data.utf8_string, v);
-			p[v] = '\0';
-		}
+		p = WS_Copy(ctx->ws, data.utf8_string, data.data_size);
 		break;
 
 	default:
 		VSLb(ctx->vsl, SLT_Error,
 		    "geoip2.lookup: Unsupported data type (%d)",
 		    data.type);
-		WS_Release(ctx->ws, 0);
 		return (NULL);
 		/* NOTREACHED */
 	}
 
-	if (v >= u) {
+	if (!p)
 		VSLb(ctx->vsl, SLT_Error,
-		    "geoip2.lookup: Out of workspace (%u/%u)",
-		    v, u);
-		WS_Release(ctx->ws, 0);
-		return (NULL);
-	} else {
-		WS_Release(ctx->ws, v + 1);
-		return (p);
-	}
+		    "geoip2.lookup: Out of workspace");
+
+	return (p);
 }
