@@ -199,7 +199,11 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
-		p = WS_Copy(ctx->ws, data.utf8_string, data.data_size);
+		p = WS_Alloc(ctx->ws, data.data_size + 1);
+		if (p) {
+			memcpy(p, data.utf8_string, data.data_size);
+			p[data.data_size] = '\0';
+		}
 		break;
 
 	default:
