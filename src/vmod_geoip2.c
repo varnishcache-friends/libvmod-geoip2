@@ -211,7 +211,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		    "geoip2.lookup: Unsupported data type (%d)",
 		    data.type);
 		return (NULL);
-		/* NOTREACHED */
 	}
 
 	if (!p)
