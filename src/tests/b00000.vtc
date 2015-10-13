@@ -26,7 +26,7 @@ varnish v1 -vcl+backend {
 		    std.ip("81.2.69.192", "0.0.0.0"));
 		set resp.http.country = db1.lookup(
 		    "country/names/en",
-		    std.ip("2001:218::1", "::1"));
+		    std.ip("2001:218::1", "0.0.0.0"));
 		set resp.http.connection-type = db2.lookup(
 		    "connection_type",
 		    std.ip("1.0.128.1", "0.0.0.0"));
