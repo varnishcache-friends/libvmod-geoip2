@@ -118,7 +118,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	if (!path || strlen(path) >= sizeof(buf)) {
+	if (!path || !*path || strlen(path) >= sizeof(buf)) {
 		VSLb(ctx->vsl, SLT_Error,
 		    "geoip2.lookup: Invalid or missing path (%s)",
 		    path ? path : "NULL");
