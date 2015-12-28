@@ -39,19 +39,19 @@ varnish v1 -vcl+backend {
 } -start
 
 logexpect l1 -v v1 -g raw -d 1 {
-	expect * 0 Error \
+	expect * 0	Error \
 	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
-	expect * 1001 Error \
+	expect * 1001	Error \
 	    "geoip2.lookup: No data for this path \\(non/existent/path\\)"
-	expect * = Error \
+	expect * =	Error \
 	    "geoip2.lookup: Unsupported data type \\(7\\)"
-	expect * = Error \
+	expect * =	Error \
 	    "geoip2.lookup: No entry for this IP address \\(0.0.0.0\\)"
-	expect * = Error \
+	expect * =	Error \
 	    "geoip2.lookup: Invalid or missing path \\(NULL\\)"
-	expect * = Error \
+	expect * =	Error \
 	    "geoip2.lookup: Invalid or missing path \\(\\)"
-	expect * = Error \
+	expect * =	Error \
 	    "geoip2.lookup: Database not open"
 } -start
 
