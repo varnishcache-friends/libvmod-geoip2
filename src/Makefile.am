@@ -15,7 +15,8 @@ nodist_libvmod_geoip2_la_SOURCES = \
 dist_man_MANS = vmod_geoip2.3
 
 VTC_LOG_COMPILER = $(VARNISHTEST) -v -i \
-	-Dvarnishd=$(VARNISHD) -Dvmod_topbuild=$(abs_top_builddir)
+	-Dvarnishd=$(VARNISHD) -Dvmod_topbuild=$(abs_top_builddir) \
+	-Dvmod_topsrc=$(abs_top_srcdir)
 TEST_EXTENSIONS = .vtc
 TESTS = @VMOD_TESTS@
 
