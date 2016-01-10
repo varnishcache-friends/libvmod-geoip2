@@ -21,6 +21,7 @@ before_install:
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" &&
     make check VERBOSE=1
+cache: apt
 notifications:
   webhooks:
     urls:
