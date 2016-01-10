@@ -21,3 +21,10 @@ before_install:
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" &&
     make check VERBOSE=1
+notifications:
+  webhooks:
+    urls:
+      secure: "0UCG5pKDVg4M0al5WQEQ6NrMq5OSeXE478gUj21zDFUyKbOBkJ2YbzGMSaiTGq42YEaXHVX5TwPunuYmiZ5N+aBD18ZqnzOMGDb2fzw3Xbb5c7BV9+PRAAViXaqt7ADO6KMpFkRQEWSJTN3gCBGiKivG0G9L08S/gODWduPRT/A="
+    on_success: change
+    on_failure: always
+    on_start: never
