@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015, Federico G. Schwindt <fgsch@lodoss.net>
+# Copyright (c) 2014-2016, Federico G. Schwindt <fgsch@lodoss.net>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,42 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-$Module geoip2 3
+$Module geoip2 3 Varnish GeoIP2 Lookup Module
+
+DESCRIPTION
+===========
 
 $Object geoip2(STRING)
 
+Description
+	Opens a GeoIP2 database file.
+Example
+	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
+
 $Method STRING .lookup(STRING, IP)
+
+Description
+	Lookups the path specified by the first argument for the IP
+	address specified by the second argument.
+
+	The path consists of a set of strings separated by slash (/)
+	representing the map keys in the database.
+
+	Returns the value associated with the specified path, or an empty
+	string if the path is not found or the value type is not supported.
+
+	Supported value types include: boolean, uint16, uint32, int32,
+	uint64, float, double and (UTF-8) string.
+
+	Errors, if any, are logged to the VSL using the Error tag.
+Example
+	| if (country.lookup("country/names/en", client.ip) !~ "Japan") {
+	|	...
+	| }
+
+SEE ALSO
+========
+
+* `varnishlog(1)`
+* `vsl(7)`
+* `GeoIP2 Databases <https://www.maxmind.com/en/geoip2-databases>`
