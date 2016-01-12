@@ -137,7 +137,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	}
 
 	if (!res.found_entry) {
-		VSLb(ctx->vsl, SLT_Error,
+		VSLb(ctx->vsl, SLT_Debug,
 		    "geoip2.lookup: No entry for this IP address (%s)",
 		    VRT_IP_string(ctx, addr));
 		return (NULL);
@@ -162,7 +162,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	}
 
 	if (!data.has_data) {
-		VSLb(ctx->vsl, SLT_Error,
+		VSLb(ctx->vsl, SLT_Debug,
 		    "geoip2.lookup: No data for this path (%s)",
 		    path);
 		return (NULL);
