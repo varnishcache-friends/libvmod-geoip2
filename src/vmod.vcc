@@ -39,27 +39,44 @@ Example
 $Method STRING .lookup(STRING, IP)
 
 Description
-	Lookups the path specified by the first argument for the IP
-	address specified by the second argument.
+	Lookups the IP address specified in the second argument using
+	the path specified in the first argument.
 
-	The path consists of a set of strings separated by slash (/)
-	representing the map keys in the database.
+	The path consists of a set of map keys and array indexes separated
+	by slash (/), e.g. "subdivisions/0/names/en".
 
-	Returns the value associated with the specified path, or an empty
-	string if the path is not found or the value type is not supported.
+	Returns the value associated with the specified path, or an
+	empty string if the IP address or the path are not found, the
+	value type is not supported or an error occurred.
 
 	Supported value types include: boolean, uint16, uint32, int32,
 	uint64, float, double and (UTF-8) string.
 
-	Errors, if any, are logged to the VSL using the Error tag.
+	Diagnostic and error messages, if any, are logged to the VSL
+	using the Debug and Error tags, respectively.
 Example
 	| if (country.lookup("country/names/en", client.ip) !~ "Japan") {
 	|	...
 	| }
 
+ERRORS
+======
+
+* "geoip2.geoip2: Using maxminddb %s"
+* "geoip2.geoip2: %s"
+* "geoip2.lookup: Database not open"
+* "geoip2.lookup: Invalid or missing path (%s)"
+* "geoip2.lookup: MMDB_lookup_sockaddr: %s"
+* "geoip2.lookup: No entry for this IP address (%s)"
+* "geoip2.lookup: MMDB_aget_value: %s"
+* "geoip2.lookup: No data for this path (%s)"
+* "geoip2.lookup: Unsupported data type (%d)"
+* "geoip2.lookup: Out of workspace"
+
 SEE ALSO
 ========
 
+* `mmdblookup(1)`
 * `varnishlog(1)`
 * `vsl(7)`
 * `GeoIP2 Databases <https://www.maxmind.com/en/geoip2-databases>`
