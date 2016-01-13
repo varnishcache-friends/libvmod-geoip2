@@ -63,11 +63,11 @@ installing from a tarball.
 import geoip2;
 
 sub vcl_init {
-	new db = geoip2.geoip2("<path/to/country/database>");
+	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
 }
 
 sub vcl_recv {
-	if (db.lookup("country/names/en", client.ip) != "<country>") {
+	if (country.lookup("country/names/en", client.ip) !~ "Japan") {
 		...
 	}
 }
