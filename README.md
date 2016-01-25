@@ -30,9 +30,11 @@ In addition, to run the tests you will need:
 
 * varnish
 
-If varnish is installed in a non-standard prefix you will need to set
-PKG_CONFIG_PATH to the appropriate directory where varnishapi.pc
-is located before running autogen.sh and/or configure.  For example:
+If varnish is installed in a non-standard prefix you will also need to set
+`PKG_CONFIG_PATH` to the appropriate directory where **varnishapi.pc**
+is located before running `autogen.sh` and `configure`.
+
+For example, if varnish was installed under /usr/local, use:
 
 ```
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
