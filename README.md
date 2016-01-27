@@ -75,7 +75,7 @@ sub vcl_init {
 }
 
 sub vcl_recv {
-	if (country.lookup("country/names/en", client.ip) !~ "Japan") {
+	if (country.lookup("country/names/en", client.ip) != "Japan") {
 		...
 	}
 }

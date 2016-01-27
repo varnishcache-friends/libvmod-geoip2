@@ -55,7 +55,7 @@ Description
 	Diagnostic and error messages, if any, are logged to the VSL
 	using the Debug and Error tags, respectively.
 Example
-	| if (country.lookup("country/names/en", client.ip) !~ "Japan") {
+	| if (country.lookup("country/names/en", client.ip) != "Japan") {
 	|	...
 	| }
 
