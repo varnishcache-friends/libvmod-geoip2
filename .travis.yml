@@ -25,7 +25,7 @@ cache: apt
 notifications:
   webhooks:
     urls:
-      secure: "0UCG5pKDVg4M0al5WQEQ6NrMq5OSeXE478gUj21zDFUyKbOBkJ2YbzGMSaiTGq42YEaXHVX5TwPunuYmiZ5N+aBD18ZqnzOMGDb2fzw3Xbb5c7BV9+PRAAViXaqt7ADO6KMpFkRQEWSJTN3gCBGiKivG0G9L08S/gODWduPRT/A="
+      secure: "BAp2OPYN1sgflZ/c/kDUhhwlEX3I4WvaX2RmorvfPSVUjC5eLEB09Biv1CVyX2GZacECwZL4F8v6YI+i+HU3sPuOLfZxjQLqMp7mlHqZyIRuzhYR3P/mNw789s2dTposRci+0uqJHDSGkurAuAXR5B2R9NK+wkEIUgcqJpGrRn8="
     on_success: change
     on_failure: always
     on_start: never
