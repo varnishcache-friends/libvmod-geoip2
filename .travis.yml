@@ -19,8 +19,7 @@ before_install:
   - sudo apt-get install varnish libvarnishapi-dev
   - ./autogen.sh
 script:
-  - ./configure && make CFLAGS="-Wall -Wextra -Werror" &&
-    make check VERBOSE=1
+  - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
 cache: apt
 notifications:
   webhooks:
