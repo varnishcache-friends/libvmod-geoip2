@@ -18,12 +18,23 @@ varnish v1 -vcl+backend {
 		    "${tmpdir}/GeoIP2-Connection-Type-Test.mmdb");
 		new db3 = geoip2.geoip2(
 		    "${tmpdir}/GeoIP2-ISP-Test.mmdb");
+		new db4 = geoip2.geoip2(
+		    "${tmpdir}/GeoIP2-Anonymous-IP-Test.mmdb");
 	}
 
 	sub vcl_deliver {
 		set resp.http.city = db1.lookup(
 		    "city/names/en",
 		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.geo_id = db1.lookup(
+		    "city/geoname_id",
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.lat = db1.lookup(
+		    "location/latitude",
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.metro = db1.lookup(
+		    "location/metro_code",
+		    std.ip("216.160.83.56", "0.0.0.0"));
 		set resp.http.country = db1.lookup(
 		    "country/names/en",
 		    std.ip("2001:218::1", "0.0.0.0"));
@@ -33,6 +44,9 @@ varnish v1 -vcl+backend {
 		set resp.http.isp = db3.lookup(
 		    "isp",
 		    std.ip("1.0.128.1", "0.0.0.0"));
+		set resp.http.anon = db4.lookup(
+		    "is_anonymous",
+		    std.ip("1.2.0.0", "0.0.0.0"));
 	}
 } -start
 
@@ -40,7 +54,11 @@ client c1 {
 	txreq
 	rxresp
 	expect resp.http.city == "London"
+	expect resp.http.geo_id == "2643743"
+	expect resp.http.lat == "51.514200"
+	expect resp.http.metro == "819"
 	expect resp.http.country == "Japan"
 	expect resp.http.connection-type == "Dialup"
 	expect resp.http.isp == "TOT Public Company Limited"
+	expect resp.http.anon == "true"
 } -run
