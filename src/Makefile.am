@@ -26,7 +26,7 @@ vcc_if.c vcc_if.h vmod_geoip2.man.rst: $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
 	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
 
 vmod_geoip2.3: vmod_geoip2.man.rst
-	${RST2MAN} $? $@
+	$(RST2MAN) $? $@
 
 EXTRA_DIST = vmod.vcc \
 	$(TESTS)
@@ -36,3 +36,12 @@ CLEANFILES = $(builddir)/vcc_if.c \
 	$(builddir)/vmod_geoip2.man.rst \
 	$(builddir)/vmod_geoip2.rst \
 	$(builddir)/$(dist_man_MANS)
+
+check-local:
+if USE_LCOV
+	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).info
+	$(GENHTML) -o lcov .libs/$(PACKAGE).info
+endif
+
+clean-local:
+	rm -rf lcov

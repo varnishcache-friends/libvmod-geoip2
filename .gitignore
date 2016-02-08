@@ -17,9 +17,9 @@
 /m4/ltoptions.m4
 /m4/ltsugar.m4
 /m4/ltversion.m4
-/m4/PLACEHOLDER
 /src/*.3
 /src/*.rst
+/src/lcov/
 /src/tests/*.log
 /src/tests/*.trs
 /src/test-suite.log
