@@ -145,6 +145,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	strncpy(buf, path, sizeof(buf));
 
+	last = NULL;
 	for (p = buf, ap = arrpath; ap < &arrpath[COMPONENT_MAX - 1] &&
 	    (*ap = strtok_r(p, "/", &last)) != NULL; p = NULL) {
 		if (**ap != '\0')
