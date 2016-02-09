@@ -12,13 +12,13 @@ varnish v1 -arg "-p workspace_client=9k" -vcl+backend {
 	import std;
 
 	sub vcl_init {
-		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-ISP-Test.mmdb");
 	}
 
 	sub vcl_deliver {
 		set resp.http.city = db1.lookup(
-		    "city/names/en",
-		    std.ip("81.2.69.192", "0.0.0.0"));
+		    "autonomous_system_organization",
+		    std.ip("65.192.0.0", "0.0.0.0"));
 	}
 } -start
 
