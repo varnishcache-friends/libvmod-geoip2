@@ -183,6 +183,18 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 				sprintf(&p[i * 2], "%02X", data.bytes[i]);
 		break;
 
+	case MMDB_DATA_TYPE_DOUBLE:
+		p = WS_Printf(ctx->ws, "%f", data.double_value);
+		break;
+
+	case MMDB_DATA_TYPE_FLOAT:
+		p = WS_Printf(ctx->ws, "%f", data.float_value);
+		break;
+
+	case MMDB_DATA_TYPE_INT32:
+		p = WS_Printf(ctx->ws, "%i", data.int32);
+		break;
+
 	case MMDB_DATA_TYPE_UINT16:
 		p = WS_Printf(ctx->ws, "%u", data.uint16);
 		break;
@@ -191,20 +203,8 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		p = WS_Printf(ctx->ws, "%u", data.uint32);
 		break;
 
-	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i", data.int32);
-		break;
-
 	case MMDB_DATA_TYPE_UINT64:
 		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
-		break;
-
-	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f", data.float_value);
-		break;
-
-	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f", data.double_value);
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
