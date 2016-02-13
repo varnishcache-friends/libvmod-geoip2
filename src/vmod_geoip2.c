@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, Federico G. Schwindt <fgsch@lodoss.net>
+ * Copyright (c) 2014-2016, Federico G. Schwindt <fgsch@lodoss.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const char **ap, *arrpath[COMPONENT_MAX];
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
+	uint32_t i;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -173,6 +174,13 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	case MMDB_DATA_TYPE_BOOLEAN:
 		p = WS_Printf(ctx->ws, "%s", data.boolean ?
 		    "true" : "false");
+		break;
+
+	case MMDB_DATA_TYPE_BYTES:
+		p = WS_Alloc(ctx->ws, data.data_size * 2 + 1);
+		if (p)
+			for (i = 0; i < data.data_size; i++)
+				sprintf(&p[i * 2], "%02X", data.bytes[i]);
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:

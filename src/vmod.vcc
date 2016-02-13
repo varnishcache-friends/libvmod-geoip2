@@ -49,8 +49,8 @@ Description
 	empty string if the IP address or the path are not found, the
 	value type is not supported or an error occurred.
 
-	Supported value types include: boolean, uint16, uint32, int32,
-	uint64, float, double and (UTF-8) string.
+	Supported value types include: boolean, bytes, double, float,
+	int32, uint16, uint32, uint64 and (UTF-8) string.
 
 	Diagnostic and error messages, if any, are logged to the VSL
 	using the Debug and Error tags, respectively.

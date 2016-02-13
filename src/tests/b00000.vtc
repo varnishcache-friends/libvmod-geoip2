@@ -20,6 +20,9 @@ varnish v1 -vcl+backend {
 		set resp.http.boolean = db1.lookup(
 		    "boolean",
 		    std.ip("1.1.1.1", "0.0.0.0"));
+		set resp.http.bytes = db1.lookup(
+		    "bytes",
+		    std.ip("1.1.1.1", "0.0.0.0"));
 		set resp.http.double = db1.lookup(
 		    "double",
 		    std.ip("1.1.1.1", "0.0.0.0"));
@@ -51,6 +54,7 @@ client c1 {
 	txreq
 	rxresp
 	expect resp.http.boolean == "true"
+	expect resp.http.bytes == "0000002A"
 	expect resp.http.double == "42.123456"
 	expect resp.http.float == "1.100000"
 	expect resp.http.int32 == "-268435456"
