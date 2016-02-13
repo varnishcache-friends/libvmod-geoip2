@@ -32,9 +32,9 @@ DESCRIPTION
 $Object geoip2(STRING)
 
 Description
-	Opens a GeoIP2 database file.
+	Opens the GeoIP2 database file specified in the argument.
 Example
-	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
+	new country = geoip2.geoip2("/path/to/GeoLite2-Country.mmdb");
 
 $Method STRING .lookup(STRING, IP)
 
@@ -62,16 +62,22 @@ Example
 ERRORS
 ======
 
-* "geoip2.geoip2: Using maxminddb %s"
 * "geoip2.geoip2: %s"
+* "geoip2.geoip2: Using maxminddb %s"
 * "geoip2.lookup: Database not open"
 * "geoip2.lookup: Invalid or missing path (%s)"
-* "geoip2.lookup: MMDB_lookup_sockaddr: %s"
-* "geoip2.lookup: No entry for this IP address (%s)"
 * "geoip2.lookup: MMDB_aget_value: %s"
+* "geoip2.lookup: MMDB_lookup_sockaddr: %s"
 * "geoip2.lookup: No data for this path (%s)"
-* "geoip2.lookup: Unsupported data type (%d)"
+* "geoip2.lookup: No entry for this IP address (%s)"
 * "geoip2.lookup: Out of workspace"
+* "geoip2.lookup: Unsupported data type (%d)"
+
+NOTES
+=====
+
+This implementation limits the path to a maximum of 9 map keys and/or
+array indexes.
 
 SEE ALSO
 ========
