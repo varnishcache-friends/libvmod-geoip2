@@ -1,53 +1,78 @@
-varnishtest "Test workspace exhaustion"
+varnishtest "Test error cases"
 
-server s1 {
+server s1 -repeat 2 {
 	rxreq
 	txresp
 } -start
 
 shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
-varnish v1 -arg "-p workspace_client=9k" -vcl+backend {
+varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
 	sub vcl_init {
-		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-ISP-Test.mmdb");
+		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db2 = geoip2.geoip2("${tmpdir}/non-existent.mmdb");
 	}
 
 	sub vcl_deliver {
-		set resp.http.city = db1.lookup(
-		    "autonomous_system_organization",
-		    std.ip("65.192.0.0", "0.0.0.0"));
+		set resp.http.path-not-found = db1.lookup(
+		    "non/existent/path",
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.type-not-supported = db1.lookup(
+		    "city/names",
+		    std.ip("81.2.69.192", "0.0.0.0"));
+		set resp.http.addr-not-found = db1.lookup(
+		    "city/names/en",
+		    std.ip("0.0.0.0", "0.0.0.0"));
+		set resp.http.missing-path1 = db1.lookup(
+		    req.http.nonexistent,
+		    std.ip("0.0.0.0", "0.0.0.0"));
+		set resp.http.missing-path2 = db1.lookup(
+		    "",
+		    std.ip("0.0.0.0", "0.0.0.0"));
+		set resp.http.missing-db = db2.lookup(
+		    "city/names/en",
+		    std.ip("0.0.0.0", "0.0.0.0"));
 	}
 } -start
 
 logexpect l1 -v v1 -g raw -d 1 {
-	expect * 1001	Error	"geoip2.lookup: Out of workspace"
+	expect * 0	Error \
+	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
+	expect * 1001	Debug \
+	    "geoip2.lookup: No data for this path \\(non/existent/path\\)"
+	expect * =	Error \
+	    "geoip2.lookup: Unsupported data type \\(7\\)"
+	expect * =	Debug \
+	    "geoip2.lookup: No entry for this IP address \\(0.0.0.0\\)"
+	expect * =	Error \
+	    "geoip2.lookup: Invalid or missing path \\(NULL\\)"
+	expect * =	Error \
+	    "geoip2.lookup: Invalid or missing path \\(\\)"
+	expect * =	Error \
+	    "geoip2.lookup: Database not open"
 } -start
 
 client c1 {
-	send "GET /"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA HTTP/1.1\r\n"
-	send "\r\n\r\n"
+	txreq
 	rxresp
+	expect resp.http.path-not-found == ""
+	expect resp.http.type-not-supported == ""
+	expect resp.http.addr-not-found == ""
+	expect resp.http.missing-path1 == ""
+	expect resp.http.missing-path2 == ""
+	expect resp.http.missing-db == ""
 } -run
 
 logexpect l1 -wait
+
+varnish v1 -vcl+backend { }
+
+client c1 {
+	txreq
+	rxresp
+} -run
+
+varnish v1 -cliok "vcl.discard vcl1"
