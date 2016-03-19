@@ -25,6 +25,3 @@ notifications:
   webhooks:
     urls:
       secure: "BAp2OPYN1sgflZ/c/kDUhhwlEX3I4WvaX2RmorvfPSVUjC5eLEB09Biv1CVyX2GZacECwZL4F8v6YI+i+HU3sPuOLfZxjQLqMp7mlHqZyIRuzhYR3P/mNw789s2dTposRci+0uqJHDSGkurAuAXR5B2R9NK+wkEIUgcqJpGrRn8="
-    on_success: change
-    on_failure: always
-    on_start: never
