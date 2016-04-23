@@ -2,21 +2,15 @@ language: c
 compiler:
   - clang
   - gcc
-env:
-  - VER=4.0
-  - VER=4.1
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
   - sudo apt-get update
-  - sudo apt-get install apt-transport-https python-docutils
-  - curl -s https://repo.varnish-cache.org/ubuntu/GPG-key.txt |
-    sudo apt-key add -
-  - echo "deb https://repo.varnish-cache.org/ubuntu/ precise varnish-$VER" |
-    sudo tee /etc/apt/sources.list.d/varnish-cache.list
-  - sudo apt-get update
-  - sudo apt-get install varnish libvarnishapi-dev
+  - sudo apt-get install python-docutils
+  - git clone https://github.com/varnishcache/varnish-cache.git
+  - cd varnish-cache && ./autogen.sh && ./configure && make &&
+    sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
