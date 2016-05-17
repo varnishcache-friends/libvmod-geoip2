@@ -34,10 +34,6 @@ AC_ARG_ENABLE([gcov],
    CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 AM_CONDITIONAL(USE_LCOV, [test x$LCOV != x && test x$GENHTML != x])
 
-AC_CHECK_LIB([maxminddb], [MMDB_open], [], [
-  AC_MSG_ERROR([maxminddb is required.])
-])
-
 AC_PATH_PROGS([PYTHON], [python3 python2.7 python2.6])
 test -z "$PYTHON" && AC_MSG_ERROR([Python 2.6 or greater is required.])
 
@@ -65,6 +61,8 @@ AS_VAR_IF([$1], [""], [$5], [$4])dnl
 ])# PKG_CHECK_VAR
 ])
 
+### varnishd
+#
 PKG_CHECK_MODULES([libvarnishapi], [varnishapi])
 PKG_CHECK_VAR([LIBVARNISHAPI_PREFIX], [varnishapi], [prefix])
 PKG_CHECK_VAR([LIBVARNISHAPI_DATAROOTDIR], [varnishapi], [datarootdir])
@@ -84,6 +82,16 @@ AC_PATH_PROG([VARNISHTEST], [varnishtest], [],
     [$LIBVARNISHAPI_BINDIR:$LIBVARNISHAPI_SBINDIR:$PATH])
 AC_PATH_PROG([VARNISHD], [varnishd], [],
     [$LIBVARNISHAPI_SBINDIR:$LIBVARNISHAPI_BINDIR:$PATH])
+
+### maxmind
+#
+PKG_CHECK_MODULES([maxminddb], [libmaxminddb])
+LIBS="$maxminddb_LIBS $LIBS"
+CFLAGS="$maxminddb_CFLAGS $CFLAGS"
+AC_CHECK_LIB([maxminddb], [MMDB_open], [], [
+  AC_MSG_ERROR([maxminddb is required.])
+])
+
 
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
