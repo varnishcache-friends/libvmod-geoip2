@@ -16,7 +16,7 @@ before_install:
   - echo "deb https://repo.varnish-cache.org/ubuntu/ precise varnish-$VER" |
     sudo tee /etc/apt/sources.list.d/varnish-cache.list
   - sudo apt-get update
-  - sudo apt-get install varnish libvarnishapi-dev
+  - sudo apt-get install varnish libvarnishapi-dev libpthread-stubs0-dev
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
