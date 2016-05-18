@@ -20,8 +20,10 @@ AC_ARG_ENABLE([gcov],
    CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 AM_CONDITIONAL(USE_LCOV, [test x$LCOV != x && test x$GENHTML != x])
 
-AC_CHECK_LIB([maxminddb], [MMDB_open], [], [
-  AC_MSG_ERROR([maxminddb is required.])
+PKG_CHECK_EXISTS([libmaxminddb], [
+  PKG_CHECK_MODULES([MAXMINDDB], [libmaxminddb])], [
+  AC_SEARCH_LIBS([MMDB_open], [maxminddb], [],
+    AC_MSG_ERROR([maxminddb is required.]))
 ])
 
 AC_PATH_PROGS([PYTHON], [python3 python2.7 python2.6])

@@ -4,9 +4,9 @@ AM_TESTS_ENVIRONMENT = PATH=$(VARNISH_BINDIR):$(VARNISH_SBINDIR):$$PATH
 vmoddir = $(VMOD_DIR)
 vmod_LTLIBRARIES = libvmod_geoip2.la
 
-libvmod_geoip2_la_CFLAGS = $(VMOD_INCLUDES)
+libvmod_geoip2_la_CFLAGS = $(VMOD_INCLUDES) $(MAXMINDDB_CFLAGS)
 libvmod_geoip2_la_LDFLAGS = -module -export-dynamic -avoid-version -shared \
-	$(LIBS)
+	$(LIBS) $(MAXMINDDB_LIBS)
 
 libvmod_geoip2_la_SOURCES = \
 	vmod_geoip2.c
