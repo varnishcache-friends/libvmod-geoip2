@@ -35,6 +35,7 @@ test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 PKG_CHECK_VAR([VARNISH_PREFIX], [varnishapi], [prefix])
 PKG_CHECK_VAR([VARNISH_BINDIR], [varnishapi], [bindir])
 PKG_CHECK_VAR([VARNISH_SBINDIR], [varnishapi], [sbindir])
+PKG_CHECK_VAR([VARNISH_DATAROOT], [varnishapi], [datarootdir])
 
 VARNISH_VMOD_INCLUDES
 VARNISH_VMOD_DIR
