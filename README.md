@@ -38,6 +38,9 @@ located before running `autogen.sh` and `configure`.  For example:
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 ```
 
+Finally, to use it you will need one or more GeoIP2 or GeoLite2 databases.
+See https://dev.maxmind.com/.
+
 ## Installation
 
 ### From a tarball
