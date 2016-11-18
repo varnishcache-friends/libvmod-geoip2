@@ -1,3 +1,5 @@
+dist: trusty
+sudo: required
 language: c
 compiler:
   - clang
@@ -5,15 +7,16 @@ compiler:
 env:
   - VER=4.0
   - VER=4.1
+  - VER=5.0
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
   - sudo apt-get update
-  - sudo apt-get install apt-transport-https python-docutils
-  - curl -s https://repo.varnish-cache.org/ubuntu/GPG-key.txt |
-    sudo apt-key add -
-  - echo "deb https://repo.varnish-cache.org/ubuntu/ precise varnish-$VER" |
+  - sudo apt-get install python-docutils
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 82B186B4
+  - echo
+    "deb http://ppa.launchpad.net/fgsch/varnish-$VER/ubuntu trusty main" |
     sudo tee /etc/apt/sources.list.d/varnish-cache.list
   - sudo apt-get update
   - sudo apt-get install varnish libvarnishapi-dev
