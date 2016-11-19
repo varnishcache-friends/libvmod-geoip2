@@ -23,7 +23,6 @@ before_install:
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
-cache: apt
 notifications:
   webhooks:
     urls:
