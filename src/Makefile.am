@@ -23,7 +23,9 @@ TESTS = @VMOD_TESTS@
 
 $(libvmod_geoip2_la_OBJECTS): vcc_if.h
 
-vcc_if.c vcc_if.h vmod_geoip2.man.rst: $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
+vcc_if.h vmod_geoip2.man.rst: vcc_if.c
+
+vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
 	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
 
 vmod_geoip2.3: vmod_geoip2.man.rst
