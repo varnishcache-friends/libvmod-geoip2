@@ -6,7 +6,9 @@ libvmod-geoip2
 
 ## About
 
-A Varnish 4 and 5 VMOD to query MaxMind GeoIP2 DB files.
+A Varnish master VMOD to query MaxMind GeoIP2 DB files.
+
+For Varnish 4 and 5 support refer to the master branch.
 
 ## Requirements
 
@@ -16,8 +18,7 @@ To build this VMOD you will need:
 * a C compiler, e.g. GCC or clang
 * pkg-config
 * python-docutils or docutils in macOS [1]
-* libvarnishapi-dev in Debian/Ubuntu, varnish-libs-devel in
-  CentOS/RedHat or varnish in macOS [1]
+* Varnish master built from sources
 * libmaxminddb-dev in recent Debian/Ubuntu releases, maxminddb in
   macOS [1]. See also https://github.com/maxmind/libmaxminddb
 
@@ -27,13 +28,9 @@ If you are building from Git, you will also need:
 * automake
 * libtool
 
-In addition, to run the tests you will need:
-
-* varnish
-
-If varnish is installed in a non-standard prefix you will also need
-to set `PKG_CONFIG_PATH` to the directory where **varnishapi.pc** is
-located before running `autogen.sh` and `configure`.  For example:
+You will also need to set `PKG_CONFIG_PATH` to the directory where
+**varnishapi.pc** is located before running `autogen.sh` and
+`configure`.  For example:
 
 ```
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
