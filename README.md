@@ -16,9 +16,10 @@ To build this VMOD you will need:
 * a C compiler, e.g. GCC or clang
 * pkg-config
 * python-docutils
-* libvarnishapi-dev in Debian/Ubuntu or varnish-libs-devel in CentOS/RedHat
-* libmaxminddb-dev in recent Debian/Ubuntu releases. See also
-  https://github.com/maxmind/libmaxminddb
+* libvarnishapi-dev in Debian/Ubuntu, varnish-libs-devel in CentOS/RedHat
+  or varnish in macOS [1].
+* libmaxminddb-dev in recent Debian/Ubuntu releases, maxminddb in macOS [1]. 
+  See also https://github.com/maxmind/libmaxminddb
 
 If you are building from Git, you will also need:
 
@@ -87,3 +88,5 @@ sub vcl_recv {
 ## License
 
 This VMOD is licensed under BSD license. See LICENSE for details.
+
+1. Via Homebrew, https://github.com/Homebrew/brew/.
