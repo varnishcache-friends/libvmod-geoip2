@@ -1,0 +1,32 @@
+varnishtest "Test logging from vcl_init{}"
+
+server s1 -repeat 2 {
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+
+varnish v1 -arg "-p thread_pools=1" -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		new db = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		std.log(db.lookup(
+		    "city/names/en",
+		    std.ip("0.0.0.0", "0.0.0.0")));
+	}
+} -start
+
+logexpect l1 -v v1 -g raw -d 1 {
+	expect * 0	Debug \
+	    "geoip2.lookup: No entry for this IP address \\(0.0.0.0\\)"
+} -start
+
+client c1 {
+	txreq
+	rxresp
+} -run
+
+logexpect l1 -wait

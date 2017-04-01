@@ -37,6 +37,8 @@
 
 #include "vcc_if.h"
 
+#include "config.h"
+
 #ifndef VRT_CTX
 #define VRT_CTX		const struct vrt_ctx *ctx
 #endif
@@ -50,6 +52,21 @@ struct vmod_geoip2_geoip2 {
 #define COMPONENT_MAX		10
 #define LOOKUP_PATH_MAX		100
 
+
+static void
+geoip2_vsl(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (ctx->vsl)
+		VSLbv(ctx->vsl, tag, fmt, ap);
+#ifdef HAVE_DECL_VSLV
+	else
+		VSLv(tag, 0, fmt, ap);
+#endif
+	va_end(ap);
+}
 
 VCL_VOID __match_proto__(td_geoip2_geoip2__init)
 vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
@@ -114,13 +131,13 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	AN(addr);
 
 	if (!vp) {
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: Database not open");
 		return (NULL);
 	}
 
 	if (!path || !*path || strlen(path) >= sizeof(buf)) {
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: Invalid or missing path (%s)",
 		    path ? path : "NULL");
 		return (NULL);
@@ -131,14 +148,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
 	if (error != MMDB_SUCCESS) {
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: MMDB_lookup_sockaddr: %s",
 		    MMDB_strerror(error));
 		return (NULL);
 	}
 
 	if (!res.found_entry) {
-		VSLb(ctx->vsl, SLT_Debug,
+		geoip2_vsl(ctx, SLT_Debug,
 		    "geoip2.lookup: No entry for this IP address (%s)",
 		    VRT_IP_string(ctx, addr));
 		return (NULL);
@@ -157,14 +174,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	error = MMDB_aget_value(&res.entry, &data, arrpath);
 	if (error != MMDB_SUCCESS &&
 	    error != MMDB_LOOKUP_PATH_DOES_NOT_MATCH_DATA_ERROR) {
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: MMDB_aget_value: %s",
 		    MMDB_strerror(error));
 		return (NULL);
 	}
 
 	if (!data.has_data) {
-		VSLb(ctx->vsl, SLT_Debug,
+		geoip2_vsl(ctx, SLT_Debug,
 		    "geoip2.lookup: No data for this path (%s)",
 		    path);
 		return (NULL);
@@ -216,14 +233,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	default:
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: Unsupported data type (%d)",
 		    data.type);
 		return (NULL);
 	}
 
 	if (!p)
-		VSLb(ctx->vsl, SLT_Error,
+		geoip2_vsl(ctx, SLT_Error,
 		    "geoip2.lookup: Out of workspace");
 
 	return (p);
