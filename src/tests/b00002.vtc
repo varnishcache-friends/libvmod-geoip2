@@ -14,6 +14,10 @@ varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 	sub vcl_init {
 		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
 		new db2 = geoip2.geoip2("${tmpdir}/non-existent.mmdb");
+
+		std.log(db1.lookup(
+		    "non/existent/path",
+		    std.ip("81.2.69.192", "0.0.0.0")));
 	}
 
 	sub vcl_deliver {
@@ -39,8 +43,17 @@ varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 } -start
 
 logexpect l1 -v v1 -g raw -d 1 {
-	expect * 0	Error \
+	# init
+	expect * 0	Debug \
+	    "geoip2.geoip2: Using maxminddb"
+	expect 0 0	Debug \
+	    "geoip2.geoip2: Using maxminddb"
+	expect 0 0	Error \
 	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
+	expect 0 0	Debug \
+	    "geoip2.lookup: No data for this path"
+
+	# deliver
 	expect * 1001	Debug \
 	    "geoip2.lookup: No data for this path \\(non/existent/path\\)"
 	expect * =	Error \
