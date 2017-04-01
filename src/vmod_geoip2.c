@@ -78,12 +78,12 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 	AN(vpp);
 	AZ(*vpp);
 
-	geoip2_vsl(ctx, SLT_Debug, "geoip2.geoip2: Using maxminddb %s",
+	VSL(SLT_Debug, 0, "geoip2.geoip2: Using maxminddb %s",
 	    MMDB_lib_version());
 
 	error = MMDB_open(filename, MMDB_MODE_MMAP, &mmdb);
 	if (error != MMDB_SUCCESS) {
-		geoip2_vsl(ctx, SLT_Error, "geoip2.geoip2: %s",
+		VSL(SLT_Error, 0, "geoip2.geoip2: %s",
 		    MMDB_strerror(error));
 		return;
 	}
