@@ -46,7 +46,7 @@ saved_CFLAGS="$CFLAGS"
 CFLAGS="$VMOD_INCLUDES"
 AC_CHECK_DECLS([VSLv], [], [], [#include <cache/cache.h>])
 CFLAGS="$saved_CFLAGS"
-AM_CONDITIONAL(USE_VSLV, [test x$HAVE_DECL_VSLV != xno])
+AM_CONDITIONAL(USE_VSLV, [test x$ac_cv_have_decl_VSLv = xyes])
 
 ac_default_prefix=$VARNISH_PREFIX
 

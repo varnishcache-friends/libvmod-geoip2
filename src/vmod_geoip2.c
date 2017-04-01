@@ -61,7 +61,7 @@ geoip2_vsl(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 	va_start(ap, fmt);
 	if (ctx->vsl)
 		VSLbv(ctx->vsl, tag, fmt, ap);
-#ifdef HAVE_DECL_VSLV
+#if HAVE_DECL_VSLV
 	else
 		VSLv(tag, 0, fmt, ap);
 #endif
