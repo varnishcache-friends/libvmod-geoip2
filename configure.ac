@@ -30,7 +30,7 @@ AM_PATH_PYTHON([2.7], [], [
   AC_MSG_ERROR([Python 2.7 or later is required.])
 ])
 
-AC_PATH_PROG([RST2MAN], [rst2man])
+AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 
 PKG_CHECK_VAR([VARNISH_PREFIX], [varnishapi], [prefix])
