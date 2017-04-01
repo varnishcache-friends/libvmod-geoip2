@@ -39,8 +39,11 @@ varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 } -start
 
 logexpect l1 -v v1 -g raw -d 1 {
-	expect * 0	Error \
+	expect * 0	Debug \
+	    "geoip2.geoip2: Using maxminddb [0-9]"
+	expect * =	Error \
 	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
+
 	expect * 1001	Debug \
 	    "geoip2.lookup: No data for this path \\(non/existent/path\\)"
 	expect * =	Error \
