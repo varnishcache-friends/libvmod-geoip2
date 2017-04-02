@@ -1,6 +1,6 @@
 varnishtest "Test logging from vcl_init{}"
 
-server s1 -repeat 2 {
+server s1 {
 	rxreq
 	txresp
 } -start
