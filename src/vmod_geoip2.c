@@ -37,8 +37,6 @@
 
 #include "vcc_if.h"
 
-#include "config.h"
-
 #ifndef VRT_CTX
 #define VRT_CTX		const struct vrt_ctx *ctx
 #endif
@@ -61,7 +59,7 @@ geoip2_vsl(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 	va_start(ap, fmt);
 	if (ctx->vsl)
 		VSLbv(ctx->vsl, tag, fmt, ap);
-#if HAVE_DECL_VSLV
+#if defined(VRT_MAJOR_VERSION) && VRT_MAJOR_VERSION >= 5
 	else
 		VSLv(tag, 0, fmt, ap);
 #endif
