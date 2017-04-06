@@ -1,0 +1,81 @@
+varnishtest "lookup_fields Test error cases"
+
+server s1 -repeat 2 {
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+
+varnish v1 -arg "-p thread_pools=1" -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db2 = geoip2.geoip2("${tmpdir}/non-existent.mmdb");
+	}
+
+	sub vcl_deliver {
+		set resp.http.path-not-found = db1.lookup_fields(
+		    "non/existent/path",
+		    "81.2.69.192");
+		set resp.http.type-not-supported = db1.lookup_fields(
+		    "city/names",
+		    "81.2.69.192");
+		set resp.http.addr-not-found = db1.lookup_fields(
+		    "city/names/en",
+		    "0.0.0.0");
+		set resp.http.missing-path1 = db1.lookup_fields(
+		    req.http.nonexistent,
+		    "0.0.0.0");
+		set resp.http.missing-path2 = db1.lookup_fields(
+		    "",
+		    "0.0.0.0");
+		set resp.http.missing-db = db2.lookup_fields(
+		    "city/names/en",
+		    "0.0.0.0");
+	}
+} -start
+
+logexpect l1 -v v1 -g raw -d 1 {
+	expect * 0	Debug \
+	    "geoip2.geoip2: Using maxminddb [0-9]"
+	expect * =	Error \
+	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
+
+	expect * 1001	Error \
+	    {^geoip2.lookup_fields\(81.2.69.192\) no data: non/existent/path\(0\)}
+	expect 1 1001	Error \
+	    {^geoip2.lookup_fields\(81.2.69.192\) format: unsupported data type\(7\)}
+	expect 1 1001	Error \
+	    {^geoip2.lookup_fields\(0.0.0.0\) mmdb: no entry found\(0\)}
+	expect 1 1001	Error \
+	    {^geoip2.lookup_fields: Invalid or missing path \(NULL\)}
+	expect 1 1001	Error \
+	    {^geoip2.lookup_fields: Invalid or missing path \(\)}
+	expect 1 1001	Error \
+	    {^geoip2.lookup_fields: Database not open}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.path-not-found == "?"
+	expect resp.http.type-not-supported == "?"
+	expect resp.http.addr-not-found == "?"
+	expect resp.http.missing-path1 == ""
+	expect resp.http.missing-path2 == ""
+	expect resp.http.missing-db == ""
+} -run
+
+logexpect l1 -wait
+
+varnish v1 -vcl+backend { }
+
+client c1 {
+	txreq
+	rxresp
+} -run
+
+varnish v1 -cliok "vcl.discard vcl1"

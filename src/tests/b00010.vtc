@@ -1,0 +1,93 @@
+varnishtest "lookup_fields Test supported types"
+
+server s1 {
+	rxreq
+	txresp
+	rxreq
+	txresp
+} -start
+
+shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+
+varnish v1 -vcl+backend {
+	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
+	import std;
+
+	sub vcl_init {
+		new db1 = geoip2.geoip2(
+		    "${tmpdir}/MaxMind-DB-test-decoder.mmdb");
+	}
+
+	sub vcl_deliver {
+		set resp.http.boolean = db1.lookup_fields(
+		    "boolean",
+		    req.http.x-ips);
+		set resp.http.bytes = db1.lookup_fields(
+		    "bytes",
+		    req.http.x-ips);
+		set resp.http.double = db1.lookup_fields(
+		    "double",
+		    req.http.x-ips);
+		set resp.http.float = db1.lookup_fields(
+		    "float",
+		    req.http.x-ips);
+		set resp.http.int32 = db1.lookup_fields(
+		    "int32",
+		    req.http.x-ips);
+		set resp.http.utf8_stringX = db1.lookup_fields(
+		    "map/mapX/utf8_stringX",
+		    req.http.x-ips);
+		set resp.http.uint16 = db1.lookup_fields(
+		    "uint16",
+		    req.http.x-ips);
+		set resp.http.uint32 = db1.lookup_fields(
+		    "uint32",
+		    req.http.x-ips);
+		set resp.http.uint64 = db1.lookup_fields(
+		    "uint64",
+		    req.http.x-ips);
+		set resp.http.utf8_string = db1.lookup_fields(
+		    "utf8_string",
+		    req.http.x-ips);
+
+		# custom seperators
+		set resp.http.boolean-sep = db1.lookup_fields(
+		    "boolean",
+		    req.http.x-ips-sep,
+		    ";:-");
+	}
+} -start
+
+client c1 {
+	txreq \
+	      -hdr "x-ips: 1.1.1.1" \
+	      -hdr "x-ips-sep: 1.1.1.1"
+	rxresp
+	expect resp.http.boolean == "true"
+	expect resp.http.bytes == "0000002A"
+	expect resp.http.double == "42.123456"
+	expect resp.http.float == "1.100000"
+	expect resp.http.int32 == "-268435456"
+	expect resp.http.utf8_stringX == "hello"
+	expect resp.http.uint16 == "100"
+	expect resp.http.uint32 == "268435456"
+	expect resp.http.uint64 == "1152921504606846976"
+	expect resp.http.utf8_string == "unicode! ☯ - ♫"
+	expect resp.http.boolean-sep == "true"
+
+	txreq \
+	      -hdr "x-ips: ,, ,  ,1.1.1.1, 1.1.1.1 ,  1.1.1.1  ,," \
+	      -hdr "x-ips-sep: ;: -  -1.1.1.1; 1.1.1.1 -  1.1.1.1  :;"
+	rxresp
+	expect resp.http.boolean == ",, ,  ,true, true ,  true  ,,"
+	expect resp.http.bytes == ",, ,  ,0000002A, 0000002A ,  0000002A  ,,"
+	expect resp.http.double == ",, ,  ,42.123456, 42.123456 ,  42.123456  ,,"
+	expect resp.http.float == ",, ,  ,1.100000, 1.100000 ,  1.100000  ,,"
+	expect resp.http.int32 == ",, ,  ,-268435456, -268435456 ,  -268435456  ,,"
+	expect resp.http.utf8_stringX == ",, ,  ,hello, hello ,  hello  ,,"
+	expect resp.http.uint16 == ",, ,  ,100, 100 ,  100  ,,"
+	expect resp.http.uint32 == ",, ,  ,268435456, 268435456 ,  268435456  ,,"
+	expect resp.http.uint64 == ",, ,  ,1152921504606846976, 1152921504606846976 ,  1152921504606846976  ,,"
+	expect resp.http.utf8_string == ",, ,  ,unicode! ☯ - ♫, unicode! ☯ - ♫ ,  unicode! ☯ - ♫  ,,"
+	expect resp.http.boolean-sep == ";: -  -true; true -  true  :;"
+} -run

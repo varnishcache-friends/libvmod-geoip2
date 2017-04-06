@@ -61,6 +61,30 @@ Example
 	|	...
 	| }
 
+$Method STRING .lookup_fields(STRING path, STRING list, STRING sep=",")
+
+Description
+	Works similar to the lookup function, but takes a string of ip
+	address elements separated by an arbitrary number of
+	characters given in the *sep* argument and returns an equally
+	formatted string with ip addresses replaced by the geoip
+	lookup results.
+
+	Whitespace outside ip addresses is ignored and preserved.
+
+	For generic errors, the empty string is returned.
+
+	For ip address specific errors, *?* is returned instead of the
+	lookup result.
+
+	Diagnostic and error messages, if any, are logged to the VSL
+	using the Debug and Error tags, respectively.
+
+Example
+	| set req.http.XFF-Geo =
+	|     country.lookup_fields("country/iso_code",
+	|                           req.http.X-Forwarded-For);
+
 ERRORS
 ======
 
