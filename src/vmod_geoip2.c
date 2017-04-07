@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include <stdlib.h>
+#include <errno.h>
 
 #include <maxminddb.h>
 
@@ -165,9 +166,7 @@ geoip2_format(VRT_CTX, MMDB_entry_data_s *data)
 		break;
 
 	default:
-		geoip2_vsl(ctx, SLT_Error,
-		    "geoip2.lookup: Unsupported data type (%d)",
-		    data->type);
+		errno = EINVAL;
 		return (NULL);
 	}
 	return (p);
@@ -248,8 +247,15 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	p = NULL;
 	if (WS_Open(ctx->ws)) {
+		errno = 0;
 		p = geoip2_format(ctx, &data);
 		WS_Close(ctx->ws);
+		if (p == NULL && errno == EINVAL) {
+			vslv(ctx, SLT_Error,
+			    "geoip2.lookup: Unsupported data type (%d)",
+			    data.type);
+			return (p);
+		}
 	}
 
 	if (!p)
