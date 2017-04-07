@@ -8,17 +8,13 @@ env:
   - VER=4.0
   - VER=4.1
   - VER=5.0
+  - VER=5.1
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
-  - sudo apt-get update
+  - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish${VER/./}/script.deb.sh | sudo bash
   - sudo apt-get install python-docutils
-  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 82B186B4
-  - echo
-    "deb http://ppa.launchpad.net/fgsch/varnish-$VER/ubuntu trusty main" |
-    sudo tee /etc/apt/sources.list.d/varnish-cache.list
-  - sudo apt-get update
   - sudo apt-get install varnish libvarnishapi-dev
   - ./autogen.sh
 script:
