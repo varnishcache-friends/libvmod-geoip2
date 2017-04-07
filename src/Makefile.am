@@ -9,7 +9,10 @@ libvmod_geoip2_la_LDFLAGS = -module -export-dynamic -avoid-version -shared \
 	$(LIBS) $(MAXMINDDB_LIBS)
 
 libvmod_geoip2_la_SOURCES = \
-	vmod_geoip2.c
+	vmod_geoip2.c \
+	ws_ext.h \
+	ws_ext.c
+
 nodist_libvmod_geoip2_la_SOURCES = \
 	vcc_if.c \
 	vcc_if.h
