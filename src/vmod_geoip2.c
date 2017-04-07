@@ -110,6 +110,67 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 	FREE_OBJ(vp);
 }
 
+static char *
+geoip2_format(VRT_CTX, MMDB_entry_data_s *data)
+{
+	char *p;
+	uint32_t i;
+
+	AN(data);
+	switch (data->type) {
+	case MMDB_DATA_TYPE_BOOLEAN:
+		p = WS_Printf(ctx->ws, "%s", data->boolean ?
+		    "true" : "false");
+		break;
+
+	case MMDB_DATA_TYPE_BYTES:
+		p = WS_Alloc(ctx->ws, data->data_size * 2 + 1);
+		if (p)
+			for (i = 0; i < data->data_size; i++)
+				sprintf(&p[i * 2], "%02X", data->bytes[i]);
+		break;
+
+	case MMDB_DATA_TYPE_DOUBLE:
+		p = WS_Printf(ctx->ws, "%f", data->double_value);
+		break;
+
+	case MMDB_DATA_TYPE_FLOAT:
+		p = WS_Printf(ctx->ws, "%f", data->float_value);
+		break;
+
+	case MMDB_DATA_TYPE_INT32:
+		p = WS_Printf(ctx->ws, "%i", data->int32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT16:
+		p = WS_Printf(ctx->ws, "%u", data->uint16);
+		break;
+
+	case MMDB_DATA_TYPE_UINT32:
+		p = WS_Printf(ctx->ws, "%u", data->uint32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT64:
+		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data->uint64);
+		break;
+
+	case MMDB_DATA_TYPE_UTF8_STRING:
+		p = WS_Alloc(ctx->ws, data->data_size + 1);
+		if (p) {
+			memcpy(p, data->utf8_string, data->data_size);
+			p[data->data_size] = '\0';
+		}
+		break;
+
+	default:
+		geoip2_vsl(ctx, SLT_Error,
+		    "geoip2.lookup: Unsupported data type (%d)",
+		    data->type);
+		return (NULL);
+	}
+	return (p);
+}
+
 VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
     VCL_STRING path, VCL_IP addr)
@@ -121,7 +182,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const char **ap, *arrpath[COMPONENT_MAX];
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
-	uint32_t i;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -184,57 +244,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	switch (data.type) {
-	case MMDB_DATA_TYPE_BOOLEAN:
-		p = WS_Printf(ctx->ws, "%s", data.boolean ?
-		    "true" : "false");
-		break;
-
-	case MMDB_DATA_TYPE_BYTES:
-		p = WS_Alloc(ctx->ws, data.data_size * 2 + 1);
-		if (p)
-			for (i = 0; i < data.data_size; i++)
-				sprintf(&p[i * 2], "%02X", data.bytes[i]);
-		break;
-
-	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f", data.double_value);
-		break;
-
-	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f", data.float_value);
-		break;
-
-	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i", data.int32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT16:
-		p = WS_Printf(ctx->ws, "%u", data.uint16);
-		break;
-
-	case MMDB_DATA_TYPE_UINT32:
-		p = WS_Printf(ctx->ws, "%u", data.uint32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT64:
-		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
-		break;
-
-	case MMDB_DATA_TYPE_UTF8_STRING:
-		p = WS_Alloc(ctx->ws, data.data_size + 1);
-		if (p) {
-			memcpy(p, data.utf8_string, data.data_size);
-			p[data.data_size] = '\0';
-		}
-		break;
-
-	default:
-		vslv(ctx, SLT_Error,
-		    "geoip2.lookup: Unsupported data type (%d)",
-		    data.type);
-		return (NULL);
-	}
+	p = geoip2_format(ctx, &data);
 
 	if (!p)
 		vslv(ctx, SLT_Error,
