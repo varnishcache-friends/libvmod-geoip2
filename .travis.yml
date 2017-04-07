@@ -15,7 +15,7 @@ before_install:
     sudo make install && cd ..
   - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish${VER/./}/script.deb.sh | sudo bash
   - sudo apt-get install python-docutils
-  - sudo apt-get install varnish libvarnishapi-dev
+  - sudo apt-get install varnish=${VER}.* libvarnishapi-dev=${VER}.*
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
