@@ -38,6 +38,8 @@
 
 #include "vcc_if.h"
 
+#include "ws_ext.h"
+
 #ifndef VRT_CTX
 #define VRT_CTX		const struct vrt_ctx *ctx
 #endif
@@ -119,47 +121,47 @@ geoip2_format(VRT_CTX, MMDB_entry_data_s *data)
 	AN(data);
 	switch (data->type) {
 	case MMDB_DATA_TYPE_BOOLEAN:
-		p = WS_Printf(ctx->ws, "%s", data->boolean ?
+		p = WS_Append_Printf(ctx->ws, "%s", data->boolean ?
 		    "true" : "false");
 		break;
 
 	case MMDB_DATA_TYPE_BYTES:
-		p = WS_Alloc(ctx->ws, data->data_size * 2 + 1);
-		if (p)
-			for (i = 0; i < data->data_size; i++)
-				sprintf(&p[i * 2], "%02X", data->bytes[i]);
+		if (WS_Space(ctx->ws) < data->data_size * 2) {
+			p = NULL;
+			break;
+		}
+		p = WS_Tail(ctx->ws);
+		for (i = 0; i < data->data_size; i++)
+			sprintf(&p[i * 2], "%02X", data->bytes[i]);
+		WS_Advance(ctx->ws, data->data_size * 2);
 		break;
 
 	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f", data->double_value);
+		p = WS_Append_Printf(ctx->ws, "%f", data->double_value);
 		break;
 
 	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f", data->float_value);
+		p = WS_Append_Printf(ctx->ws, "%f", data->float_value);
 		break;
 
 	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i", data->int32);
+		p = WS_Append_Printf(ctx->ws, "%i", data->int32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:
-		p = WS_Printf(ctx->ws, "%u", data->uint16);
+		p = WS_Append_Printf(ctx->ws, "%u", data->uint16);
 		break;
 
 	case MMDB_DATA_TYPE_UINT32:
-		p = WS_Printf(ctx->ws, "%u", data->uint32);
+		p = WS_Append_Printf(ctx->ws, "%u", data->uint32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT64:
-		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data->uint64);
+		p = WS_Append_Printf(ctx->ws, "%ju", (uintmax_t)data->uint64);
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
-		p = WS_Alloc(ctx->ws, data->data_size + 1);
-		if (p) {
-			memcpy(p, data->utf8_string, data->data_size);
-			p[data->data_size] = '\0';
-		}
+		p = WS_Append(ctx->ws, data->utf8_string, data->data_size);
 		break;
 
 	default:
@@ -244,7 +246,11 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	p = geoip2_format(ctx, &data);
+	p = NULL;
+	if (WS_Open(ctx->ws)) {
+		p = geoip2_format(ctx, &data);
+		WS_Close(ctx->ws);
+	}
 
 	if (!p)
 		vslv(ctx, SLT_Error,
