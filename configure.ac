@@ -42,23 +42,29 @@ VARNISH_VMOD_INCLUDES
 VARNISH_VMOD_DIR
 VARNISH_VMODTOOL
 
-AC_MSG_CHECKING(for VSLv usability)
-save_CFLAGS="$CFLAGS"
-CFLAGS="$VMOD_INCLUDES"
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM([[
+AC_DEFUN([AX_VRT_MAJOR_CHECK], [
+  AC_EGREP_HEADER([yes], [
 #include <vrt.h>
-#if VRT_MAJOR_VERSION < 5
-#error unsupported
+#if VRT_MAJOR_VERSION == $1
+yes
 #endif
-  ]])],
-  [AC_MSG_RESULT(yes)
-   ac_cv_have_VSLv=yes
   ],
-  [AC_MSG_RESULT(no)]
-)
-CFLAGS="${save_CFLAGS}"
-AM_CONDITIONAL(USE_VSLV, [test x$ac_cv_have_VSLv = xyes])
+  [AC_MSG_RESULT([$1])
+  ax_vrt_major_version=[$1]],
+  [$2])
+])
+
+AC_MSG_CHECKING(for VRT major version)
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$VMOD_INCLUDES"
+AX_VRT_MAJOR_CHECK([6])
+AX_VRT_MAJOR_CHECK([5])
+if test -z $ax_vrt_major_version; then
+  AC_MSG_RESULT(3 or older)
+fi
+CPPFLAGS="$save_CPPFLAGS"
+AM_CONDITIONAL(VRT_MAJOR_VERSION_5, [test x$ax_vrt_major_version = x5])
+AM_CONDITIONAL(VRT_MAJOR_VERSION_6, [test x$ax_vrt_major_version = x6])
 
 ac_default_prefix=$VARNISH_PREFIX
 
