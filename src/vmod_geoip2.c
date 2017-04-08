@@ -52,7 +52,7 @@ struct vmod_geoip2_geoip2 {
 
 
 static void
-geoip2_vsl(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
+vslv(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 {
 	va_list ap;
 
@@ -127,13 +127,13 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	AN(addr);
 
 	if (!vp) {
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: Database not open");
 		return (NULL);
 	}
 
 	if (!path || !*path || strlen(path) >= sizeof(buf)) {
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: Invalid or missing path (%s)",
 		    path ? path : "NULL");
 		return (NULL);
@@ -144,14 +144,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	res = MMDB_lookup_sockaddr(&vp->mmdb, sa, &error);
 	if (error != MMDB_SUCCESS) {
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: MMDB_lookup_sockaddr: %s",
 		    MMDB_strerror(error));
 		return (NULL);
 	}
 
 	if (!res.found_entry) {
-		geoip2_vsl(ctx, SLT_Debug,
+		vslv(ctx, SLT_Debug,
 		    "geoip2.lookup: No entry for this IP address (%s)",
 		    VRT_IP_string(ctx, addr));
 		return (NULL);
@@ -170,14 +170,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	error = MMDB_aget_value(&res.entry, &data, arrpath);
 	if (error != MMDB_SUCCESS &&
 	    error != MMDB_LOOKUP_PATH_DOES_NOT_MATCH_DATA_ERROR) {
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: MMDB_aget_value: %s",
 		    MMDB_strerror(error));
 		return (NULL);
 	}
 
 	if (!data.has_data) {
-		geoip2_vsl(ctx, SLT_Debug,
+		vslv(ctx, SLT_Debug,
 		    "geoip2.lookup: No data for this path (%s)",
 		    path);
 		return (NULL);
@@ -229,14 +229,14 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	default:
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: Unsupported data type (%d)",
 		    data.type);
 		return (NULL);
 	}
 
 	if (!p)
-		geoip2_vsl(ctx, SLT_Error,
+		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: Out of workspace");
 
 	return (p);
