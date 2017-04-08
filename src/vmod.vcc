@@ -30,18 +30,17 @@ $Module geoip2 3 Varnish GeoIP2 Lookup Module
 DESCRIPTION
 ===========
 
-$Object geoip2(STRING)
+$Object geoip2(STRING filename)
 
 Description
-	Opens the GeoIP2 database file specified in the argument.
+	Opens the GeoIP2 MaxMind DB file.
 Example
 	new country = geoip2.geoip2("/path/to/GeoLite2-Country.mmdb");
 
-$Method STRING .lookup(STRING, IP)
+$Method STRING .lookup(STRING path, IP ip)
 
 Description
-	Lookups the IP address specified in the second argument using
-	the path specified in the first argument.
+	Looks up the IP address `ip` using the lookup path `path`.
 
 	The path consists of a set of map keys and array indexes separated
 	by slash (/), e.g. "subdivisions/0/names/en".
