@@ -20,9 +20,9 @@ VTC_LOG_COMPILER = $(VARNISHTEST) -v \
 	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
 TEST_EXTENSIONS = .vtc
 TESTS = @VMOD_TESTS@
-TESTS_EXTRA = tests/extra/b00004.vtc
+TESTS_VSLV = tests/vslv/b00004.vtc
 if USE_VSLV
-TESTS += $(TESTS_EXTRA)
+TESTS += $(TESTS_VSLV)
 endif
 
 $(libvmod_geoip2_la_OBJECTS): vcc_if.h
@@ -36,8 +36,9 @@ vmod_geoip2.3: vmod_geoip2.man.rst
 	$(RST2MAN) $? $@
 
 EXTRA_DIST = vmod.vcc \
+	tests/libvmod-geoip2.mmdb \
 	$(TESTS) \
-	$(TESTS_EXTRA)
+	$(TESTS_VSLV)
 
 CLEANFILES = $(builddir)/vcc_if.c \
 	$(builddir)/vcc_if.h \
