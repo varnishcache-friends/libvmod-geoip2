@@ -32,6 +32,7 @@ vmod_geoip2.3: vmod_geoip2.man.rst
 	$(RST2MAN) $? $@
 
 EXTRA_DIST = vmod.vcc \
+	tests/libvmod-geoip2.mmdb \
 	$(TESTS)
 
 CLEANFILES = $(builddir)/vcc_if.c \
