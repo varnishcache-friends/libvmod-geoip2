@@ -5,20 +5,20 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topsrc}/src/tests/libvmod-geoip2.mmdb ${tmpdir}"
 
 varnish v1 -arg "-p workspace_client=9k" -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
 	sub vcl_init {
-		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-ISP-Test.mmdb");
+		new db1 = geoip2.geoip2("${tmpdir}/libvmod-geoip2.mmdb");
 	}
 
 	sub vcl_deliver {
 		set resp.http.city = db1.lookup(
-		    "autonomous_system_organization",
-		    std.ip("65.192.0.0", "0.0.0.0"));
+		    "long_string",
+		    client.ip);
 	}
 } -start
 
@@ -45,7 +45,7 @@ client c1 {
 	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA HTTP/1.1\r\n"
+	send "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA HTTP/1.1\r\n"
 	send "\r\n\r\n"
 	rxresp
 } -run
