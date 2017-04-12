@@ -41,7 +41,7 @@ located before running `autogen.sh` and `configure`.  For example:
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 ```
 
-Finally, to use it you will need one or more GeoIP2 or GeoLite2 databases.
+Finally, to use it you will need one or more GeoIP2 or GeoLite2 databases in MaxMind DB binary format.
 See https://dev.maxmind.com/.
 
 ## Installation
@@ -71,12 +71,15 @@ git clone --recursive https://github.com/fgsch/libvmod-geoip2
 And then run `./autogen.sh` followed by the instructions above for
 installing from a tarball.
 
-## Example
+Finally place your MaxMind DB binary download (for example GeoLite2-Country.mmdb) in a path readable by Varnish.
+
+## Example 1: Check the country name (in English)
 
 ```
 import geoip2;
 
 sub vcl_init {
+        # You need to supply the full path to the mmdb file, for example /etc/maxmind/GeoLite2-Country.mmdb
 	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
 }
 
@@ -86,6 +89,45 @@ sub vcl_recv {
 	}
 }
 ```
+
+## Example 2: Pass the ISO code to the backend servers
+
+```
+import geoip2;
+
+sub vcl_init {
+        # You need to supply the full path to the mmdb file, for example /etc/maxmind/GeoLite2-Country.mmdb
+	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
+}
+
+sub vcl_recv {
+	
+	...
+	set req.http.X-Country-Code = country.lookup("country/iso_code", client.ip);
+	...
+	
+}
+```
+
+## Example 3: Pass the ISO code to the backend servers using first X-FORWARDED-FOR IP if supplied
+
+```
+import geoip2;
+
+sub vcl_init {
+        # You need to supply the full path to the mmdb file, for example /etc/maxmind/GeoLite2-Country.mmdb
+	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
+}
+
+sub vcl_recv {
+	
+	...
+	set req.http.X-Country-Code = country.lookup("country/iso_code", std.ip(regsub(req.http.x-forwarded-for, "^(\d+\.\d+\.\d+\.\d+).*", "\1"), client.ip));
+	...
+	
+}
+```
+
 
 ## License
 
