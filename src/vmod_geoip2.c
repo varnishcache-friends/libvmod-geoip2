@@ -301,6 +301,12 @@ vmod_geoip2_lookup_fields(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
+	if (list == NULL)
+		return NULL;
+
+	if (sep == NULL)
+		sep = ",";
+
 	strncpy(buf, path, sizeof(buf));
 
 	last = NULL;
