@@ -33,7 +33,9 @@ DESCRIPTION
 $Object geoip2(STRING filename)
 
 Description
-	Opens the GeoIP2 MaxMind DB file.
+	Opens the GeoIP2 MaxMind binary DB file.
+
+	Databases in CSV format are not supported.
 Example
 	new country = geoip2.geoip2("/path/to/GeoLite2-Country.mmdb");
 
