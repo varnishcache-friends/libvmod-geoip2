@@ -41,8 +41,8 @@ located before running `autogen.sh` and `configure`.  For example:
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 ```
 
-Finally, to use it you will need one or more GeoIP2 or GeoLite2 databases.
-See https://dev.maxmind.com/.
+Finally, to use it you will need one or more GeoIP2 or GeoLite2
+binary databases.  See https://dev.maxmind.com/.
 
 ## Installation
 
@@ -77,7 +77,7 @@ installing from a tarball.
 import geoip2;
 
 sub vcl_init {
-	new country = geoip2.geoip2("GeoLite2-Country.mmdb");
+	new country = geoip2.geoip2("/path/to/GeoLite2-Country.mmdb");
 }
 
 sub vcl_recv {
