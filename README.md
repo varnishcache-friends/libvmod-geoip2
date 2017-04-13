@@ -87,6 +87,8 @@ sub vcl_recv {
 }
 ```
 
+More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
+
 ## License
 
 This VMOD is licensed under BSD license. See LICENSE for details.
