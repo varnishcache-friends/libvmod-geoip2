@@ -1,6 +1,7 @@
 *.la
 *.lo
 *.o
+*~
 .deps/
 .libs/
 /aclocal.m4
