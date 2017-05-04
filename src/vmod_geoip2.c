@@ -274,6 +274,13 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		w = WS_Append(ctx->ws, "?", 1); 			\
 	} while (0)
 
+#define geoip2_lf_dbg(ctx, w, what, err, errv) do {		\
+		vslv((ctx), SLT_Debug,				\
+		    "geoip2.lookup_fields(%s) %s: %s(%d)",		\
+		    (w), (what), (err), (errv));			\
+		w = WS_Append(ctx->ws, "?", 1); 			\
+	} while (0)
+
 VCL_STRING __match_proto__(td_geoip2_geoip2_lookup_fields)
 vmod_geoip2_lookup_fields(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
     VCL_STRING path, VCL_STRING list, VCL_STRING sep)
@@ -382,7 +389,7 @@ vmod_geoip2_lookup_fields(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 				geoip2_lf_err(ctx, w, "mmdb_aget",
 				    MMDB_strerror(mmdb_error), mmdb_error);
 			} else if (!data.has_data) {
-				geoip2_lf_err(ctx, w, "no data",
+				geoip2_lf_dbg(ctx, w, "no data",
 				    path, 0);
 			} else {
 				errno = 0;
