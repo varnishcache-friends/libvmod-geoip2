@@ -36,8 +36,10 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "cache/cache.h"
+#include "common/common_param.h"
 #include "ws_ext.h"
 
 /*
