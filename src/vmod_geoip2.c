@@ -2,6 +2,8 @@
  * Copyright (c) 2014-2016, Federico G. Schwindt <fgsch@lodoss.net>
  * All rights reserved.
  *
+ * Portions Copyright 2017 UPLEX - Nils Goroll Systemoptimierung
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -26,7 +28,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 #include <maxminddb.h>
 
@@ -36,6 +41,8 @@
 #include "vsa.h"
 
 #include "vcc_if.h"
+
+#include "ws_ext.h"
 
 #ifndef VRT_CTX
 #define VRT_CTX		const struct vrt_ctx *ctx
@@ -109,6 +116,65 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 	FREE_OBJ(vp);
 }
 
+static char *
+geoip2_format(VRT_CTX, MMDB_entry_data_s *data)
+{
+	char *p;
+	uint32_t i;
+
+	AN(data);
+	switch (data->type) {
+	case MMDB_DATA_TYPE_BOOLEAN:
+		p = WS_Append_Printf(ctx->ws, "%s", data->boolean ?
+		    "true" : "false");
+		break;
+
+	case MMDB_DATA_TYPE_BYTES:
+		if (WS_Space(ctx->ws) < data->data_size * 2) {
+			p = NULL;
+			break;
+		}
+		p = WS_Tail(ctx->ws);
+		for (i = 0; i < data->data_size; i++)
+			sprintf(&p[i * 2], "%02X", data->bytes[i]);
+		WS_Advance(ctx->ws, data->data_size * 2);
+		break;
+
+	case MMDB_DATA_TYPE_DOUBLE:
+		p = WS_Append_Printf(ctx->ws, "%f", data->double_value);
+		break;
+
+	case MMDB_DATA_TYPE_FLOAT:
+		p = WS_Append_Printf(ctx->ws, "%f", data->float_value);
+		break;
+
+	case MMDB_DATA_TYPE_INT32:
+		p = WS_Append_Printf(ctx->ws, "%i", data->int32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT16:
+		p = WS_Append_Printf(ctx->ws, "%u", data->uint16);
+		break;
+
+	case MMDB_DATA_TYPE_UINT32:
+		p = WS_Append_Printf(ctx->ws, "%u", data->uint32);
+		break;
+
+	case MMDB_DATA_TYPE_UINT64:
+		p = WS_Append_Printf(ctx->ws, "%ju", (uintmax_t)data->uint64);
+		break;
+
+	case MMDB_DATA_TYPE_UTF8_STRING:
+		p = WS_Append(ctx->ws, data->utf8_string, data->data_size);
+		break;
+
+	default:
+		errno = EINVAL;
+		return (NULL);
+	}
+	return (p);
+}
+
 VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
     VCL_STRING path, VCL_IP addr)
@@ -120,7 +186,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const char **ap, *arrpath[COMPONENT_MAX];
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
-	uint32_t i;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -183,56 +248,17 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	switch (data.type) {
-	case MMDB_DATA_TYPE_BOOLEAN:
-		p = WS_Printf(ctx->ws, "%s", data.boolean ?
-		    "true" : "false");
-		break;
-
-	case MMDB_DATA_TYPE_BYTES:
-		p = WS_Alloc(ctx->ws, data.data_size * 2 + 1);
-		if (p)
-			for (i = 0; i < data.data_size; i++)
-				sprintf(&p[i * 2], "%02X", data.bytes[i]);
-		break;
-
-	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f", data.double_value);
-		break;
-
-	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f", data.float_value);
-		break;
-
-	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i", data.int32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT16:
-		p = WS_Printf(ctx->ws, "%u", data.uint16);
-		break;
-
-	case MMDB_DATA_TYPE_UINT32:
-		p = WS_Printf(ctx->ws, "%u", data.uint32);
-		break;
-
-	case MMDB_DATA_TYPE_UINT64:
-		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
-		break;
-
-	case MMDB_DATA_TYPE_UTF8_STRING:
-		p = WS_Alloc(ctx->ws, data.data_size + 1);
-		if (p) {
-			memcpy(p, data.utf8_string, data.data_size);
-			p[data.data_size] = '\0';
+	p = NULL;
+	if (WS_Open(ctx->ws)) {
+		errno = 0;
+		p = geoip2_format(ctx, &data);
+		WS_Close(ctx->ws);
+		if (p == NULL && errno == EINVAL) {
+			vslv(ctx, SLT_Error,
+			    "geoip2.lookup: Unsupported data type (%d)",
+			    data.type);
+			return (p);
 		}
-		break;
-
-	default:
-		vslv(ctx, SLT_Error,
-		    "geoip2.lookup: Unsupported data type (%d)",
-		    data.type);
-		return (NULL);
 	}
 
 	if (!p)
@@ -240,4 +266,156 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		    "geoip2.lookup: Out of workspace");
 
 	return (p);
+}
+
+#define geoip2_lf_err(ctx, w, what, err, errv) do {			\
+		vslv((ctx), SLT_Error,				\
+		    "geoip2.lookup_fields(%s) %s: %s(%d)",		\
+		    (w), (what), (err), (errv));			\
+		w = WS_Append(ctx->ws, "?", 1); 			\
+	} while (0)
+
+#define geoip2_lf_dbg(ctx, w, what, err, errv) do {		\
+		vslv((ctx), SLT_Debug,				\
+		    "geoip2.lookup_fields(%s) %s: %s(%d)",		\
+		    (w), (what), (err), (errv));			\
+		w = WS_Append(ctx->ws, "?", 1); 			\
+	} while (0)
+
+VCL_STRING __match_proto__(td_geoip2_geoip2_lookup_fields)
+vmod_geoip2_lookup_fields(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
+    VCL_STRING path, VCL_STRING list, VCL_STRING sep)
+{
+	MMDB_lookup_result_s res;
+	MMDB_entry_data_s data;
+	const char **ap, *arrpath[COMPONENT_MAX];
+	char buf[LOOKUP_PATH_MAX];
+	char *p, *last, *w;
+	const char *out, *s, *e;
+	int mmdb_error, gai_error;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if (!vp) {
+		vslv(ctx, SLT_Error,
+		    "geoip2.lookup_fields: Database not open");
+		return (NULL);
+	}
+
+	if (!path || !*path || strlen(path) >= sizeof(buf)) {
+		vslv(ctx, SLT_Error,
+		    "geoip2.lookup_fields: Invalid or missing path (%s)",
+		    path ? path : "NULL");
+		return (NULL);
+	}
+
+	if (list == NULL)
+		return NULL;
+
+	if (sep == NULL)
+		sep = ",";
+
+	strncpy(buf, path, sizeof(buf));
+
+	last = NULL;
+	for (last = NULL, p = buf, ap = arrpath;
+	     ap < &arrpath[COMPONENT_MAX - 1] &&
+		 (*ap = strtok_r(p, "/", &last)) != NULL;
+	     p = NULL) {
+		if (**ap != '\0')
+			ap++;
+	}
+	*ap = NULL;
+
+	out = w = WS_Open(ctx->ws);
+
+	/*
+	 * we copy everything until the next separator onto our open workspace
+	 * and use the copied address for the lookup
+	 */
+	while (w && *list) {
+		/* append separators */
+		s = list;
+		list += strspn(list, sep);
+		if (s != list) {
+			assert (list > s);
+			w = WS_Append(ctx->ws, s, list - s);
+			s = list;
+		}
+
+		list += strcspn(list, sep);
+		e = list;
+		if (s == e)
+			break;
+
+		while (e > s && (e[-1] == ' ' || e[-1] == '\t'))
+			e--;
+
+		if (s == e) {
+			/* only whitespace, preserve */
+			w = WS_Append(ctx->ws, s, list - s);
+			continue;
+		}
+
+		w = WS_Append(ctx->ws, s, e - s);
+		if (w == NULL)
+			break;
+
+		while (*w == ' ' || *w == '\t')
+			w++;
+
+		/* all-whitespace case handled above */
+		assert(w < WS_Tail(ctx->ws));
+
+		res = MMDB_lookup_string(&vp->mmdb, w,
+		    &gai_error, &mmdb_error);
+
+		/* move ws tail back to start of ip address */
+		WS_Restore(ctx->ws, w);
+
+		if (gai_error != 0) {
+			geoip2_lf_err(ctx, w, "getaddrinfo",
+			    gai_strerror(gai_error), gai_error);
+		} else if (mmdb_error != MMDB_SUCCESS) {
+			geoip2_lf_err(ctx, w, "mmdb",
+			    MMDB_strerror(mmdb_error), mmdb_error);
+		} else if (!res.found_entry) {
+			geoip2_lf_err(ctx, w, "mmdb",
+			    "no entry found", 0);
+		} else {
+			mmdb_error =
+			    MMDB_aget_value(&res.entry, &data, arrpath);
+			if (mmdb_error != MMDB_SUCCESS &&
+			    mmdb_error != MMDB_LOOKUP_PATH_DOES_NOT_MATCH_DATA_ERROR) {
+				geoip2_lf_err(ctx, w, "mmdb_aget",
+				    MMDB_strerror(mmdb_error), mmdb_error);
+			} else if (!data.has_data) {
+				geoip2_lf_dbg(ctx, w, "no data",
+				    path, 0);
+			} else {
+				errno = 0;
+				last = w;
+				w = geoip2_format(ctx, &data);
+				if (w == NULL && errno == EINVAL) {
+					geoip2_lf_err(ctx, last, "format",
+					    "unsupported data type", data.type);
+					w = last;
+				}
+			}
+		}
+
+		/* append remaining whitespace */
+		if (w && e != list) {
+			assert (list > e);
+			w = WS_Append(ctx->ws, e, list - e);
+		}
+	}
+
+	WS_Close(ctx->ws);
+
+	if (w == NULL)
+		vslv(ctx, SLT_Error,
+		    "geoip2.lookup_fields: Out of workspace");
+
+	return (out);
 }
