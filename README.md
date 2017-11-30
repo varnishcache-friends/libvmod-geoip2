@@ -89,6 +89,16 @@ sub vcl_recv {
 
 More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
 
+## Caveat
+
+As the GeoIP2 file is mmaped into the varnish process by libmaxminddb,
+truncating/overwriting it (ie. via wget) under load can cause the
+varnish worker process to segfault.
+
+It is therefore recommended to download the update as a new file, and
+then ``mv`` the new file onto the old active database, before reloading
+the vcl.
+
 ## License
 
 This VMOD is licensed under BSD license. See LICENSE for details.
