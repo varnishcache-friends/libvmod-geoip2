@@ -33,7 +33,6 @@
 
 #include "cache/cache.h"
 
-#include "vrt.h"
 #include "vsa.h"
 
 #include "vcc_if.h"
@@ -65,7 +64,7 @@ vslv(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 	va_end(ap);
 }
 
-VCL_VOID __match_proto__(td_geoip2_geoip2__init)
+VCL_VOID
 vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
     const char *vcl_name, VCL_STRING filename)
 {
@@ -95,7 +94,7 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 	vp->mmdb = mmdb;
 }
 
-VCL_VOID __match_proto__(td_geoip2_geoip2__fini)
+VCL_VOID
 vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 {
 	struct vmod_geoip2_geoip2 *vp;
@@ -110,7 +109,7 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 	FREE_OBJ(vp);
 }
 
-VCL_STRING __match_proto__(td_geoip2_geoip2_lookup)
+VCL_STRING
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
     VCL_STRING path, VCL_IP addr)
 {
