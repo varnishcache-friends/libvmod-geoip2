@@ -84,6 +84,13 @@ sub vcl_recv {
 
 More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
 
+## Updating the DB
+
+For live updates see https://github.com/maxmind/geoipupdate.
+Alternatively, you can update the DB manually by downloading the
+new file on the same filesystem as the old one before moving it
+over to ensure that the `mv` is atomic.
+
 ## License
 
 This VMOD is licensed under BSD license. See LICENSE for details.
