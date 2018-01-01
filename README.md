@@ -91,10 +91,9 @@ More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
 
 ## Updating the DB
 
-For live updates see https://github.com/maxmind/geoipupdate.
-Alternatively, you can update the DB manually by downloading the
-new file on the same filesystem as the old one before moving it
-over to ensure that the `mv` is atomic.
+Download the new file on the same filesystem as the old one (without
+overwriting it) and move it over to ensure the operation is atomic.
+See also https://github.com/maxmind/geoipupdate.
 
 ## License
 
