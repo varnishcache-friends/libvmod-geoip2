@@ -29,13 +29,13 @@ $(libvmod_geoip2_la_OBJECTS): vcc_if.h
 
 vcc_if.h vmod_geoip2.man.rst vmod_geoip2.rst: vcc_if.c
 
-vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
-	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod.vcc
+vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
+	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
 
 vmod_geoip2.3: vmod_geoip2.man.rst
 	$(RST2MAN) $? $@
 
-EXTRA_DIST = vmod.vcc \
+EXTRA_DIST = vmod_geoip2.vcc \
 	tests/libvmod-geoip2.mmdb \
 	$(TESTS) \
 	$(TESTS_VSLV)
