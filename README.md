@@ -84,10 +84,10 @@ sub vcl_recv {
 
 More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
 
-## GeoIP2 DB update
+## DB updates
 
-To update the DB, download the new file on the same filesystem as
-the old one and move it over. See also
+To update the GeoIP2 DB, download the new file on the same filesystem
+as the old one and move it over. See also
 https://github.com/maxmind/geoipupdate.
 
 ## License
