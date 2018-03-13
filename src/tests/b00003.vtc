@@ -9,7 +9,6 @@ shell "cp ${vmod_topsrc}/src/tests/libvmod-geoip2.mmdb ${tmpdir}"
 
 varnish v1 -arg "-p workspace_client=9k" -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
-	import std;
 
 	sub vcl_init {
 		new db1 = geoip2.geoip2("${tmpdir}/libvmod-geoip2.mmdb");
