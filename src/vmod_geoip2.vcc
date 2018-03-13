@@ -88,3 +88,4 @@ SEE ALSO
 * `varnishlog(1)`
 * `vsl(7)`
 * `GeoIP2 Databases <https://www.maxmind.com/en/geoip2-databases>`
+* `GeoIP2 Update program <https://github.com/maxmind/geoipupdate>`
