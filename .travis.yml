@@ -5,8 +5,7 @@ compiler:
   - clang
   - gcc
 env:
-  - VER=4.1
-  - VER=5.2
+  - VER=6.0
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&

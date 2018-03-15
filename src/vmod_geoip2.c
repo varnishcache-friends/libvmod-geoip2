@@ -27,12 +27,12 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <maxminddb.h>
 
 #include "cache/cache.h"
 
-#include "vrt.h"
 #include "vsa.h"
 
 #include "vcc_if.h"
@@ -59,10 +59,8 @@ vslv(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 	va_start(ap, fmt);
 	if (ctx->vsl)
 		VSLbv(ctx->vsl, tag, fmt, ap);
-#if defined(VRT_MAJOR_VERSION) && VRT_MAJOR_VERSION >= 5
 	else
 		VSLv(tag, 0, fmt, ap);
-#endif
 	va_end(ap);
 }
 

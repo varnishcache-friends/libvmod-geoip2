@@ -22,8 +22,6 @@
 /src/lcov/
 /src/tests/*.log
 /src/tests/*.trs
-/src/tests/vslv/*.log
-/src/tests/vslv/*.trs
 /src/test-suite.log
 /src/vcc_if.c
 /src/vcc_if.h
