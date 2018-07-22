@@ -1,7 +1,6 @@
 libvmod-geoip2
 ==============
 
-[![Join the chat at https://gitter.im/fgsch/libvmod-geoip2](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fgsch/libvmod-geoip2?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/fgsch/libvmod-geoip2.svg?branch=devel)](https://travis-ci.org/fgsch/libvmod-geoip2)
 
 ## About
