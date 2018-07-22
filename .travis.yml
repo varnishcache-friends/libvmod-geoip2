@@ -4,19 +4,16 @@ language: c
 compiler:
   - clang
   - gcc
-env:
-  - VER=6.0
+addons:
+  apt:
+    packages:
+      - python-docutils
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
-    sudo make install && cd ..
-  - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish${VER/./}/script.deb.sh | sudo bash
-  - sudo apt-get install python-docutils
-  - sudo apt-get install varnish=${VER}.* varnish-dev=${VER}.*
+  - git clone -b varnish-6.0.0 https://github.com/varnishcache/varnish-cache.git
+  - cd varnish-cache && ./autogen.sh && ./configure && make &&
+    sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
-notifications:
-  webhooks:
-    urls:
-      secure: "BAp2OPYN1sgflZ/c/kDUhhwlEX3I4WvaX2RmorvfPSVUjC5eLEB09Biv1CVyX2GZacECwZL4F8v6YI+i+HU3sPuOLfZxjQLqMp7mlHqZyIRuzhYR3P/mNw789s2dTposRci+0uqJHDSGkurAuAXR5B2R9NK+wkEIUgcqJpGrRn8="
