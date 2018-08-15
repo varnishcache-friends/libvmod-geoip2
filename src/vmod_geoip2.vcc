@@ -39,7 +39,7 @@ Description
 Example
 	new country = geoip2.geoip2("/path/to/GeoLite2-Country.mmdb");
 
-$Method STRING .lookup(STRING path, IP ip)
+$Method STRING .lookup(STRING path, IP ip, BOOL json=0)
 
 Description
 	Looks up the IP address `ip` using the lookup path `path`.
@@ -50,6 +50,10 @@ Description
 	Returns the value associated with the specified path, or an
 	empty string if the IP address or the path are not found, the
 	value type is not supported or an error occurred.
+
+	If the value associated with the specified path is bytes
+	or string type and `json` is true, the result will be
+	converted to a JSON string.
 
 	Supported value types include: boolean, bytes, double, float,
 	int32, uint16, uint32, uint64 and (UTF-8) string.

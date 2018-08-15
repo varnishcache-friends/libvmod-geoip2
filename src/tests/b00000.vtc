@@ -23,6 +23,10 @@ varnish v1 -vcl+backend {
 		set resp.http.bytes = db1.lookup(
 		    "bytes",
 		    std.ip("1.1.1.1", "0.0.0.0"));
+		set resp.http.bytes_json = db1.lookup(
+		    "bytes",
+		    std.ip("1.1.1.1", "0.0.0.0"),
+		    true);
 		set resp.http.double = db1.lookup(
 		    "double",
 		    std.ip("1.1.1.1", "0.0.0.0"));
@@ -35,6 +39,10 @@ varnish v1 -vcl+backend {
 		set resp.http.utf8_stringX = db1.lookup(
 		    "map/mapX/utf8_stringX",
 		    std.ip("1.1.1.1", "0.0.0.0"));
+		set resp.http.utf8_stringX_json = db1.lookup(
+		    "map/mapX/utf8_stringX",
+		    std.ip("1.1.1.1", "0.0.0.0"),
+		    true);
 		set resp.http.uint16 = db1.lookup(
 		    "uint16",
 		    std.ip("1.1.1.1", "0.0.0.0"));
@@ -55,10 +63,12 @@ client c1 {
 	rxresp
 	expect resp.http.boolean == "true"
 	expect resp.http.bytes == "0000002A"
+	expect resp.http.bytes_json == {"0000002A"}
 	expect resp.http.double == "42.123456"
 	expect resp.http.float == "1.100000"
 	expect resp.http.int32 == "-268435456"
 	expect resp.http.utf8_stringX == "hello"
+	expect resp.http.utf8_stringX_json == {"hello"}
 	expect resp.http.uint16 == "100"
 	expect resp.http.uint32 == "268435456"
 	expect resp.http.uint64 == "1152921504606846976"
