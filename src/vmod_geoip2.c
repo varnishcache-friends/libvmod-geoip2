@@ -110,7 +110,7 @@ printf_bytes(struct ws *ws, const uint8_t *bytes, uint32_t size,
     unsigned json)
 {
 	char *p;
-	int i;
+	uint32_t i;
 
 	p = WS_Alloc(ws, size * 2 + json * 2 + 1);
 	if (p == NULL)
@@ -137,7 +137,6 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const char *fmt;
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
-	uint32_t i;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
