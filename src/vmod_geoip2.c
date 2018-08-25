@@ -105,7 +105,7 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 	FREE_OBJ(vp);
 }
 
-char *
+static char *
 printf_bytes(struct ws *ws, const uint8_t *bytes, uint32_t size,
     unsigned json)
 {
