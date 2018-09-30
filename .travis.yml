@@ -8,6 +8,7 @@ addons:
   apt:
     packages:
       - python-docutils
+      - python-sphinx
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
