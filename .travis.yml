@@ -12,7 +12,7 @@ before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
-  - git clone -b varnish-6.0.0 https://github.com/varnishcache/varnish-cache.git
+  - git clone -b varnish-6.1.0 https://github.com/varnishcache/varnish-cache.git
   - cd varnish-cache && ./autogen.sh && ./configure && make &&
     sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
