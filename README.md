@@ -8,7 +8,7 @@ libvmod-geoip2
 
 A Varnish 6.1 VMOD to query MaxMind GeoIP2 DB files.
 
-For Varnish 4.1/5.x and master refer to the oldstable and devel
+For Varnish 4.1/6.0 and master refer to the oldstable and devel
 branches, respectively.
 
 ## Requirements
@@ -66,7 +66,7 @@ tests are passing on your platform.
 To install from Git, clone this repository by running:
 
 ```
-git clone --recursive https://github.com/fgsch/libvmod-geoip2
+git clone --branch master --recursive https://github.com/fgsch/libvmod-geoip2
 ```
 
 And then run `./autogen.sh` followed by the instructions above for
