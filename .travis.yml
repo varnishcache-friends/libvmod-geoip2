@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 sudo: required
 language: c
 compiler:
@@ -13,9 +13,9 @@ before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
-  - git clone -b varnish-6.1.0 https://github.com/varnishcache/varnish-cache.git
-  - cd varnish-cache && ./autogen.sh && ./configure && make &&
-    sudo make install && sudo ldconfig && cd ..
+  - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish61/script.deb.sh |
+    sudo bash
+  - sudo apt-get install varnish-dev
   - ./autogen.sh
 script:
   - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
