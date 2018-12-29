@@ -1,16 +1,16 @@
 dist: xenial
 sudo: required
 language: c
-compiler:
-  - clang
-  - gcc
-env:
-  matrix:
-    - configure_args=''
-    - configure_args='--enable-gcov'
+matrix:
+  include:
+    - compiler: gcc
+      env: configure_args='--enable-gcov'
+    - compiler: clang
+      env: configure_args=''
 addons:
   apt:
     packages:
+      - lcov
       - python-docutils
       - python-sphinx
 before_install:
@@ -22,6 +22,7 @@ before_install:
     sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
 script:
-  - ./configure $configure_args && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
+  - ./configure $configure_args && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - make distcheck
