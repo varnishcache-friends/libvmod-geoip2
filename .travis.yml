@@ -22,8 +22,7 @@ before_install:
     sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
 script: |
-  ./configure $configure_args
-  make CFLAGS="-Wall -Wextra -Werror"
+  ./configure CFLAGS="-Wall -Wextra -Werror" $configure_args
   make check VERBOSE=1
 after_success: |
   if [ -f src/.libs/libvmod_geoip2_la-vcc_if.gcno ]; then
