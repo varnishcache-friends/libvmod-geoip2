@@ -4,6 +4,10 @@ language: c
 compiler:
   - clang
   - gcc
+env:
+  matrix:
+    - configure_args=''
+    - configure_args='--enable-gcov'
 addons:
   apt:
     packages:
@@ -18,4 +22,6 @@ before_install:
     sudo make install && sudo ldconfig && cd ..
   - ./autogen.sh
 script:
-  - ./configure && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
+  - ./configure $configure_args && make CFLAGS="-Wall -Wextra -Werror" VERBOSE=1 distcheck
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
