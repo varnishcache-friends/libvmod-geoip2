@@ -45,6 +45,7 @@ if USE_LCOV
 check-local:
 	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).info
 	$(GENHTML) -o lcov .libs/$(PACKAGE).info
+	$(GCOV) -o .libs/libvmod_geoip2_la-vcc_if.gcno vmod_geoip2.c
 
 clean-local:
 	rm -rf lcov
