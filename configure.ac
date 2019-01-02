@@ -15,8 +15,9 @@ AC_PROG_LIBTOOL
 AC_ARG_ENABLE([gcov],
   [AS_HELP_STRING([--enable-gcov],
      [enable code coverage analysis (default=no)])],
-  [AC_PATH_PROG([LCOV], [lcov])
-   AC_PATH_PROG([GENHTML], [genhtml])
+  [AC_PATH_PROG([GENHTML], [genhtml])
+   AC_PATH_PROG([GCOV], [gcov])
+   AC_PATH_PROG([LCOV], [lcov])
    CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
 AM_CONDITIONAL(USE_LCOV, [test x$LCOV != x && test x$GENHTML != x])
 
