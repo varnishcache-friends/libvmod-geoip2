@@ -41,6 +41,19 @@ binary databases.  See https://dev.maxmind.com/.
 
 ## Installation
 
+### From RPM (CentOS / RedHat 7)
+
+#### For Varnish 4.1.x
+
+    yum install https://extras.getpagespeed.com/release-el7-latest.rpm
+    yum install vmod-geoip2
+
+#### For Varnish 6.0.x
+
+    yum install https://extras.getpagespeed.com/release-el7-latest.rpm
+    yum-config-manager --enable getpagespeed-extras-varnish60
+    yum install vmod-geoip2
+
 ### From a tarball
 
 To install this VMOD, run the following commands:
