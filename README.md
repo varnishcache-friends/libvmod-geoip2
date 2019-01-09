@@ -66,6 +66,10 @@ git clone --recursive https://github.com/fgsch/libvmod-geoip2
 And then run `./autogen.sh` followed by the instructions above for
 installing from a tarball.
 
+### Packages
+
+See https://github.com/fgsch/libvmod-geoip2/wiki/Packages.
+
 ## Example
 
 ```
