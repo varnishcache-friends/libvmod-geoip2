@@ -50,7 +50,7 @@ binary databases.  See https://dev.maxmind.com/.
 
 #### For Varnish 6.0.x
 
-    yum install https://extras.getpagespeed.com/release-el7-latest.rpm
+    yum install https://extras.getpagespeed.com/release-el7-latest.rpm yum-utils
     yum-config-manager --enable getpagespeed-extras-varnish60
     yum install vmod-geoip2
 
