@@ -68,7 +68,7 @@ installing from a tarball.
 
 ### Packages
 
-See https://github.com/fgsch/libvmod-geoip2/wiki/Packages.
+See https://github.com/fgsch/libvmod-geoip2/wiki#packages.
 
 ## Example
 
