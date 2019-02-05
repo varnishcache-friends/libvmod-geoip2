@@ -13,7 +13,6 @@ varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 
 	sub vcl_init {
 		new db1 = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
-		new db2 = geoip2.geoip2("${tmpdir}/non-existent.mmdb");
 	}
 
 	sub vcl_deliver {
@@ -32,17 +31,12 @@ varnish v1 -arg "-p thread_pools=1" -vcl+backend {
 		set resp.http.missing-path2 = db1.lookup(
 		    "",
 		    std.ip("0.0.0.0", "0.0.0.0"));
-		set resp.http.missing-db = db2.lookup(
-		    "city/names/en",
-		    std.ip("0.0.0.0", "0.0.0.0"));
 	}
 } -start
 
 logexpect l1 -v v1 -g raw -d 1 {
 	expect * 0	Debug \
 	    "geoip2.geoip2: Using maxminddb [0-9]"
-	expect * =	Error \
-	    "geoip2.geoip2: Error opening the specified MaxMind DB file"
 
 	expect * 1001	Debug \
 	    "geoip2.lookup: No data for this path \\(non/existent/path\\)"
@@ -54,8 +48,6 @@ logexpect l1 -v v1 -g raw -d 1 {
 	    "geoip2.lookup: Invalid or missing path \\(NULL\\)"
 	expect * =	Error \
 	    "geoip2.lookup: Invalid or missing path \\(\\)"
-	expect * =	Error \
-	    "geoip2.lookup: Database not open"
 } -start
 
 client c1 {
@@ -66,7 +58,6 @@ client c1 {
 	expect resp.http.addr-not-found == ""
 	expect resp.http.missing-path1 == ""
 	expect resp.http.missing-path2 == ""
-	expect resp.http.missing-db == ""
 } -run
 
 logexpect l1 -wait
