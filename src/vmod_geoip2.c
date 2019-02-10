@@ -95,9 +95,7 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 {
 	struct vmod_geoip2_geoip2 *vp;
 
-	if (!*vpp)
-		return;
-
+	AN(*vpp);
 	vp = *vpp;
 	*vpp = NULL;
 	CHECK_OBJ_NOTNULL(vp, VMOD_GEOIP2_MAGIC);
@@ -141,12 +139,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	AN(addr);
-
-	if (!vp) {
-		vslv(ctx, SLT_Error,
-		    "geoip2.lookup: Database not open");
-		return (NULL);
-	}
+	AN(vp);
 
 	if (!path || !*path || strlen(path) >= sizeof(buf)) {
 		vslv(ctx, SLT_Error,
