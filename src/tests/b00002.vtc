@@ -85,3 +85,4 @@ client c1 {
 } -run
 
 varnish v1 -cliok "vcl.discard vcl1"
+varnish v1 -cliok "vcl.discard vcl3"
