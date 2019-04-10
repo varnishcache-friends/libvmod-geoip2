@@ -11,8 +11,8 @@ addons:
   apt:
     packages:
       - lcov
-      - python-docutils
-      - python-sphinx
+      - python3-docutils
+      - python3-sphinx
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
