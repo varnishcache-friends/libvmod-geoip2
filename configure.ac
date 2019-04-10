@@ -27,9 +27,7 @@ PKG_CHECK_EXISTS([libmaxminddb], [
     AC_MSG_ERROR([maxminddb is required.]))
 ])
 
-AM_PATH_PYTHON([2.7], [], [
-  AC_MSG_ERROR([Python 2.7 or later is required.])
-])
+_VARNISH_CHECK_PYTHON
 
 AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
