@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, Federico G. Schwindt <fgsch@lodoss.net>
+ * Copyright (c) 2014-2018, Federico G. Schwindt <fgsch@lodoss.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
