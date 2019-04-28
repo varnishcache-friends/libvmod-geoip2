@@ -19,7 +19,8 @@ AC_ARG_ENABLE([gcov],
    AC_PATH_PROG([GCOV], [gcov])
    AC_PATH_PROG([LCOV], [lcov])
    CFLAGS="$CFLAGS -fprofile-arcs -ftest-coverage"])
-AM_CONDITIONAL(USE_LCOV, [test x$LCOV != x && test x$GENHTML != x])
+AM_CONDITIONAL(USE_LCOV,
+  [test x$GENHTML != x && test x$GCOV != x && test x$LCOV != x])
 
 PKG_CHECK_EXISTS([libmaxminddb], [
   PKG_CHECK_MODULES([MAXMINDDB], [libmaxminddb])], [
