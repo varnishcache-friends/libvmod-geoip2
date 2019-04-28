@@ -13,13 +13,14 @@ addons:
       - lcov
       - python3-docutils
       - python3-sphinx
-before_install:
+install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
   - git clone https://github.com/varnishcache/varnish-cache.git
   - cd varnish-cache && ./autogen.sh && ./configure && make &&
     sudo make install && sudo ldconfig && cd ..
+before_script:
   - ./autogen.sh
 script:
   - ./configure CFLAGS="-Wall -Wextra -Werror" $configure_args
