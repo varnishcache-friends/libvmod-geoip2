@@ -7,13 +7,13 @@ compiler:
 addons:
   apt:
     packages:
-      - python-docutils
-      - python-sphinx
+      - python3-docutils
+      - python3-sphinx
 before_install:
   - git submodule update --init --recursive
   - cd libmaxminddb && ./bootstrap && ./configure && make &&
     sudo make install && cd ..
-  - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish61/script.deb.sh |
+  - curl -s https://packagecloud.io/install/repositories/varnishcache/varnish62/script.deb.sh |
     sudo bash
   - sudo apt-get install varnish-dev
   - ./autogen.sh

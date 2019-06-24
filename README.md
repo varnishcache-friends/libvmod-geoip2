@@ -5,7 +5,7 @@ libvmod-geoip2
 
 ## About
 
-A Varnish 6.1 VMOD to query MaxMind GeoIP2 DB files.
+A Varnish 6.2 VMOD to query MaxMind GeoIP2 DB files.
 
 For Varnish 4.1/6.0 and master refer to the oldstable and devel
 branches, respectively.
