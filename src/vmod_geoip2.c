@@ -138,8 +138,8 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(vp, VMOD_GEOIP2_MAGIC);
 	AN(addr);
-	AN(vp);
 
 	if (!path || !*path || strlen(path) >= sizeof(buf)) {
 		vslv(ctx, SLT_Error,
