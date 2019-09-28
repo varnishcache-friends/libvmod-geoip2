@@ -16,16 +16,12 @@ jobs:
       with: 
         submodules: true
     - name: apt-get
-      run: |
-        sudo apt-get install -y libedit-dev lcov python3-docutils 
-        python3-sphinx 
+      run: sudo apt-get install -y libedit-dev lcov python3-docutils python3-sphinx 
     - name: prereq
       run: |
-        cd libmaxminddb && ./bootstrap && ./configure && make && 
-        sudo make install && cd ..
+        cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
         git clone https://github.com/varnishcache/varnish-cache.git
-        cd varnish-cache && ./autogen.sh && ./configure && make && 
-        sudo make install && sudo ldconfig && cd ..
+        cd varnish-cache && ./autogen.sh && ./configure && make && sudo make install && sudo ldconfig && cd ..
     - name: autogen.sh
       run: ./autogen.sh
     - name: configure
