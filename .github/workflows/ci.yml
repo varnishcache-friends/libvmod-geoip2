@@ -6,18 +6,18 @@ jobs:
   build:
 
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-16.04, ubuntu-18.04]
         compiler: [gcc, clang]
-    
+
     steps:
     - uses: actions/checkout@v1
-      with: 
+      with:
         submodules: recursive
     - name: apt-get
-      run: sudo apt-get install -y libedit-dev lcov python3-docutils python3-sphinx 
+      run: sudo apt-get install -y libedit-dev lcov python3-docutils python3-sphinx
     - name: prereq
       run: |
         cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
@@ -26,7 +26,7 @@ jobs:
     - name: autogen.sh
       run: ./autogen.sh
     - name: enable gcov
-      if: matrix.compiler == 'gcc'
+      if: matrix.compiler == 'gcc' && matrix.os == 'ubuntu-18.04'
       run: echo ::set-env name=CONFIGURE_ARGS::--enable-gcov
     - name: configure
       run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
