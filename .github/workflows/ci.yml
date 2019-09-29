@@ -34,8 +34,9 @@ jobs:
       run: make
     - name: make check
       run: make check VERBOSE=1
-    - name: codecov
+    - uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
       if: matrix.compiler == 'gcc' && matrix.os == 'ubuntu-18.04'
-      run: bash <(curl -s https://codecov.io/bash)
     - name: make distcheck
       run: make distcheck
