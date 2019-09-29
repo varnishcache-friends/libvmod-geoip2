@@ -1,4 +1,4 @@
-## unreleased
+## 1.2.1 - 2019-09-29
 
 * Retire oldstable branch.
 * Change master to cover 6.0, 6.2 and 6.3.
