@@ -1,14 +1,14 @@
 libvmod-geoip2
 ==============
 
-[![Build Status](https://travis-ci.org/fgsch/libvmod-geoip2.svg?branch=master)](https://travis-ci.org/fgsch/libvmod-geoip2)
+![](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg)
+[![codecov](https://codecov.io/gh/fgsch/libvmod-geoip2/branch/master/graph/badge.svg)](https://codecov.io/gh/fgsch/libvmod-geoip2)
 
 ## About
 
-A Varnish 6.3 VMOD to query MaxMind GeoIP2 DB files.
+A Varnish 6.0, 6.2 and 6.3 VMOD to query MaxMind GeoIP2 DB files.
 
-For Varnish 6.0 and master refer to the oldstable and devel branches,
-respectively.
+For Varnish master refer to the devel branch.
 
 ## Requirements
 
@@ -29,13 +29,9 @@ If you are building from Git, you will also need:
 * automake
 * libtool
 
-In addition, to run the tests you will need:
-
-* varnish
-
-If varnish is installed in a non-standard prefix you will also need
-to set `PKG_CONFIG_PATH` to the directory where **varnishapi.pc** is
-located before running `autogen.sh` and `configure`.  For example:
+You will also need to set `PKG_CONFIG_PATH` to the directory where
+**varnishapi.pc** is located before running `autogen.sh` and
+`configure`.  For example:
 
 ```
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
@@ -70,6 +66,10 @@ git clone --branch master --recursive https://github.com/fgsch/libvmod-geoip2
 
 And then run `./autogen.sh` followed by the instructions above for
 installing from a tarball.
+
+### Packages
+
+See https://github.com/fgsch/libvmod-geoip2/wiki#packages.
 
 ## Example
 

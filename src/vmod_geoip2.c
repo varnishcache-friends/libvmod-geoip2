@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, Federico G. Schwindt <fgsch@lodoss.net>
+ * Copyright (c) 2014-2018, Federico G. Schwindt <fgsch@lodoss.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,23 +103,43 @@ vmod_geoip2__fini(struct vmod_geoip2_geoip2 **vpp)
 	FREE_OBJ(vp);
 }
 
+static char *
+printf_bytes(struct ws *ws, const uint8_t *bytes, uint32_t size,
+    unsigned json)
+{
+	char *p;
+	uint32_t i;
+
+	p = WS_Alloc(ws, size * 2 + json * 2 + 1);
+	if (p == NULL)
+		return (p);
+	for (i = 0; i < size; i++)
+		sprintf(&p[i * 2 + json], "%02X", bytes[i]);
+	if (json) {
+		p[0] = '"';
+		p[size * 2 + 1] = '"';
+		p[size * 2 + 2] = '\0';
+	}
+	return (p);
+}
+
 VCL_STRING
 vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
-    VCL_STRING path, VCL_IP addr)
+    VCL_STRING path, VCL_IP addr, VCL_BOOL json)
 {
 	MMDB_lookup_result_s res;
 	MMDB_entry_data_s data;
 	const struct sockaddr *sa;
 	socklen_t addrlen;
 	const char **ap, *arrpath[COMPONENT_MAX];
+	const char *fmt;
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
-	uint32_t i;
 	int error;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(vp, VMOD_GEOIP2_MAGIC);
 	AN(addr);
-	AN(vp);
 
 	if (!path || !*path || strlen(path) >= sizeof(buf)) {
 		vslv(ctx, SLT_Error,
@@ -179,10 +199,8 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	case MMDB_DATA_TYPE_BYTES:
-		p = WS_Alloc(ctx->ws, data.data_size * 2 + 1);
-		if (p)
-			for (i = 0; i < data.data_size; i++)
-				sprintf(&p[i * 2], "%02X", data.bytes[i]);
+		p = printf_bytes(ctx->ws, data.bytes,
+		    data.data_size, json);
 		break;
 
 	case MMDB_DATA_TYPE_DOUBLE:
@@ -210,11 +228,9 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
-		p = WS_Alloc(ctx->ws, data.data_size + 1);
-		if (p) {
-			memcpy(p, data.utf8_string, data.data_size);
-			p[data.data_size] = '\0';
-		}
+		fmt = json ? "\"%.*s\"" : "%.*s";
+		p = WS_Printf(ctx->ws, fmt, data.data_size,
+		    data.utf8_string);
 		break;
 
 	default:
