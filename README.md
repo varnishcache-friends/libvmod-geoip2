@@ -3,6 +3,7 @@ libvmod-geoip2
 
 ![](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg)
 [![Build Status](https://travis-ci.org/fgsch/libvmod-geoip2.svg?branch=devel)](https://travis-ci.org/fgsch/libvmod-geoip2)
+[![codecov](https://codecov.io/gh/fgsch/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/fgsch/libvmod-geoip2)
 
 ## About
 
