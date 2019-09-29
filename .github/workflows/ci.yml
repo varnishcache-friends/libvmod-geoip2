@@ -24,8 +24,12 @@ jobs:
         cd varnish-cache && ./autogen.sh && ./configure && make && sudo make install && sudo ldconfig && cd ..
     - name: autogen.sh
       run: ./autogen.sh
+    - name: enable gcov
+      if: ${{ matrix.compiler }} == "gcc"
+      env: 
+        CONFIGURE_ARGS: --enable-gcov
     - name: configure
-      run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror"
+      run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
     - name: make
       run: make
     - name: make check
