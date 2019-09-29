@@ -7,10 +7,6 @@ jobs:
 
     runs-on: ubuntu-18.04
 
-    strategy:
-      matrix:
-        varnish: ['6.0', '6.2', '6.3', 'master']
-
     steps:
     - uses: actions/checkout@v1
       with:
@@ -20,25 +16,22 @@ jobs:
     - name: prereq
       run: |
         cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
-        git clone -b ${{ matrix.varnish }} https://github.com/varnishcache/varnish-cache.git
+        git clone https://github.com/varnishcache/varnish-cache.git
         cd varnish-cache && ./autogen.sh && ./configure && make && sudo make install && sudo ldconfig && cd ..
     - name: autogen.sh
       run: ./autogen.sh
-    - name: enable gcov
-      if: matrix.varnish == 'master'
-      run: echo ::set-env name=CONFIGURE_ARGS::--enable-gcov
     - name: configure
-      run: ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
+      run: ./configure CFLAGS="-Wall -Wextra -Werror" --enable-gcov
     - name: make
       run: make
     - name: make check
       run: make check VERBOSE=1
       continue-on-error: true
     - name: codecov
-      if: matrix.varnish == 'master'
       run: curl -s https://codecov.io/bash | bash -s -- -t ${{ secrets.CODECOV_TOKEN }}
 
   test-clang:
+
     runs-on: ubuntu-18.04
 
     needs: test
