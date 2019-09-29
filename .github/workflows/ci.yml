@@ -26,7 +26,7 @@ jobs:
     - name: autogen.sh
       run: ./autogen.sh
     - name: enable gcov
-      if: matrix.compiler == "gcc"
+      if: matrix.compiler == 'gcc'
       run: echo ::set-env name=CONFIGURE_ARGS::--enable-gcov
     - name: configure
       run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
