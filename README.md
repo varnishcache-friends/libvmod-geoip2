@@ -1,7 +1,7 @@
 libvmod-geoip2
 ==============
 
-![](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg)
+![ci](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/fgsch/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/fgsch/libvmod-geoip2)
 
 ## About
