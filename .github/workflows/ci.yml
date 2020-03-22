@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        varnish: ['6.0', '6.2', '6.3']
+        varnish: ['6.0', '6.3', '6.4']
 
     steps:
     - uses: actions/checkout@v1
