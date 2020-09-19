@@ -132,7 +132,7 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 	const struct sockaddr *sa;
 	socklen_t addrlen;
 	const char **ap, *arrpath[COMPONENT_MAX];
-	const char *fmt;
+	const char *fmt, *q;
 	char buf[LOOKUP_PATH_MAX];
 	char *p, *last;
 	int error;
@@ -194,42 +194,42 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 
 	switch (data.type) {
 	case MMDB_DATA_TYPE_BOOLEAN:
-		p = WS_Printf(ctx->ws, "%s", data.boolean ?
+		q = WS_Printf(ctx->ws, "%s", data.boolean ?
 		    "true" : "false");
 		break;
 
 	case MMDB_DATA_TYPE_BYTES:
-		p = printf_bytes(ctx->ws, data.bytes,
+		q = printf_bytes(ctx->ws, data.bytes,
 		    data.data_size, json);
 		break;
 
 	case MMDB_DATA_TYPE_DOUBLE:
-		p = WS_Printf(ctx->ws, "%f", data.double_value);
+		q = WS_Printf(ctx->ws, "%f", data.double_value);
 		break;
 
 	case MMDB_DATA_TYPE_FLOAT:
-		p = WS_Printf(ctx->ws, "%f", data.float_value);
+		q = WS_Printf(ctx->ws, "%f", data.float_value);
 		break;
 
 	case MMDB_DATA_TYPE_INT32:
-		p = WS_Printf(ctx->ws, "%i", data.int32);
+		q = WS_Printf(ctx->ws, "%i", data.int32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT16:
-		p = WS_Printf(ctx->ws, "%u", data.uint16);
+		q = WS_Printf(ctx->ws, "%u", data.uint16);
 		break;
 
 	case MMDB_DATA_TYPE_UINT32:
-		p = WS_Printf(ctx->ws, "%u", data.uint32);
+		q = WS_Printf(ctx->ws, "%u", data.uint32);
 		break;
 
 	case MMDB_DATA_TYPE_UINT64:
-		p = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
+		q = WS_Printf(ctx->ws, "%ju", (uintmax_t)data.uint64);
 		break;
 
 	case MMDB_DATA_TYPE_UTF8_STRING:
 		fmt = json ? "\"%.*s\"" : "%.*s";
-		p = WS_Printf(ctx->ws, fmt, data.data_size,
+		q = WS_Printf(ctx->ws, fmt, data.data_size,
 		    data.utf8_string);
 		break;
 
@@ -240,9 +240,9 @@ vmod_geoip2_lookup(VRT_CTX, struct vmod_geoip2_geoip2 *vp,
 		return (NULL);
 	}
 
-	if (!p)
+	if (!q)
 		vslv(ctx, SLT_Error,
 		    "geoip2.lookup: Out of workspace");
 
-	return (p);
+	return (q);
 }
