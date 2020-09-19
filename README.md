@@ -1,7 +1,7 @@
 libvmod-geoip2
 ==============
 
-![ci](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg?branch=master)
+![ci](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/fgsch/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/fgsch/libvmod-geoip2)
 
 ## About
@@ -62,7 +62,7 @@ tests are passing on your platform.
 To install from Git, clone this repository by running:
 
 ```
-git clone --branch master --recursive https://github.com/fgsch/libvmod-geoip2
+git clone --branch main --recursive https://github.com/fgsch/libvmod-geoip2
 ```
 
 And then run `./autogen.sh` followed by the instructions above for
