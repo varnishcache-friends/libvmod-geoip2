@@ -26,7 +26,7 @@ jobs:
       run: ./autogen.sh
     - name: enable gcov
       if: matrix.compiler == 'gcc'
-      run: echo ::set-env name=CONFIGURE_ARGS::--enable-gcov
+      run: echo "CONFIGURE_ARGS=--enable-gcov" >> $GITHUB_ENV
     - name: configure
       run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
     - name: make
