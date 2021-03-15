@@ -9,14 +9,16 @@ jobs:
 
     strategy:
       matrix:
-        varnish: ['6.0', '6.4', '6.5']
+        varnish: ['6.0', '6.4', '6.5', '6.6']
 
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: recursive
     - name: apt-get
-      run: sudo apt-get install -y libedit-dev python3-docutils python3-sphinx
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libedit-dev python3-docutils python3-sphinx
     - name: prereq
       run: |
         cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
