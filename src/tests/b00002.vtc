@@ -9,7 +9,7 @@ shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
 varnish v1 -arg "-p thread_pools=1" -vcl+backend { } -start
 
-varnish v1 -errvcl "not initialized" {
+varnish v1 -errvcl "Error opening the specified MaxMind DB file" {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	backend default {
 		.host = "127.0.0.1";
