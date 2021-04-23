@@ -1,3 +1,7 @@
+## unreleased
+
+* When we cannot open the DB, send the error to the CLI as well.
+
 ## 1.2.1 - 2019-09-29
 
 * Retire oldstable branch.

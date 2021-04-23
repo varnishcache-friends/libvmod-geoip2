@@ -34,6 +34,7 @@
 #include "cache/cache.h"
 
 #include "vsa.h"
+#include "vsb.h"
 
 #include "vcc_if.h"
 
@@ -79,8 +80,13 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 
 	error = MMDB_open(filename, MMDB_MODE_MMAP, &mmdb);
 	if (error != MMDB_SUCCESS) {
-		VSL(SLT_Error, 0, "geoip2.geoip2: %s",
+		char errstr[512];
+
+		snprintf(errstr, sizeof(errstr), "geoip2.geoip2: %s",
 		    MMDB_strerror(error));
+		VSL(SLT_Error, 0, "%s", errstr);
+		/* Send the error to the CLI too. */
+		VSB_printf(ctx->msg, "%s\n", errstr);
 		return;
 	}
 
