@@ -1,4 +1,4 @@
-## unreleased
+## 1.3.0 - 2022-06-16
 
 * Fix null ip handling (#42).
 * Drop support for Varnish 6.4, 6.5 and 6.6, and add support for
