@@ -1,3 +1,7 @@
+## unreleased
+
+* Fix null ip handling (#42).
+
 ## 1.2.2 - 2021-04-23
 
 * When we cannot open the DB, send the error to the CLI as well.
