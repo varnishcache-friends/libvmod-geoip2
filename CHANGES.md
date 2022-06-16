@@ -1,3 +1,8 @@
+## unreleased
+
+* Drop support for Varnish 6.4, 6.5 and 6.6, and add support for
+  7.0 and 7.1.
+
 ## 1.2.2 - 2021-04-23
 
 * When we cannot open the DB, send the error to the CLI as well.
