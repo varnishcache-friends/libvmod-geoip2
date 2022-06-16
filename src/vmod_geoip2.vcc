@@ -74,6 +74,7 @@ ERRORS
 * "geoip2.lookup: Invalid or missing path (%s)"
 * "geoip2.lookup: MMDB_aget_value: %s"
 * "geoip2.lookup: MMDB_lookup_sockaddr: %s"
+* "geoip2.lookup: Missing ip address"
 * "geoip2.lookup: No data for this path (%s)"
 * "geoip2.lookup: No entry for this IP address (%s)"
 * "geoip2.lookup: Out of workspace"
