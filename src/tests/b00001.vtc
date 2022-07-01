@@ -41,6 +41,6 @@ client c1 {
 	rxresp
 	expect resp.http.city == "London"
 	expect resp.http.country == "Japan"
-	expect resp.http.connection-type == "Dialup"
+	expect resp.http.connection-type == "Cable/DSL"
 	expect resp.http.isp == "TOT Public Company Limited"
 } -run
