@@ -1,8 +1,8 @@
 libvmod-geoip2
 ==============
 
-![ci](https://github.com/fgsch/libvmod-geoip2/workflows/ci/badge.svg?branch=devel)
-[![codecov](https://codecov.io/gh/fgsch/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/fgsch/libvmod-geoip2)
+![ci](https://github.com/varnishcache-friends/libvmod-geoip2/workflows/ci/badge.svg?branch=devel)
+[![codecov](https://codecov.io/gh/varnishcache-friends/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/varnishcache-friends/libvmod-geoip2)
 
 ## About
 
@@ -61,7 +61,7 @@ tests are passing on your platform.
 To install from Git, clone this repository by running:
 
 ```
-git clone --recursive https://github.com/fgsch/libvmod-geoip2
+git clone --recursive https://github.com/varnishcache-friends/libvmod-geoip2
 ```
 
 And then run `./autogen.sh` followed by the instructions above for
@@ -69,7 +69,7 @@ installing from a tarball.
 
 ### Packages
 
-See https://github.com/fgsch/libvmod-geoip2/wiki#packages.
+See https://github.com/varnishcache-friends/libvmod-geoip2/wiki#packages.
 
 ## Example
 
@@ -87,7 +87,7 @@ sub vcl_recv {
 }
 ```
 
-More examples available at https://github.com/fgsch/libvmod-geoip2/wiki.
+More examples available at https://github.com/varnishcache-friends/libvmod-geoip2/wiki.
 
 ## DB updates
 
