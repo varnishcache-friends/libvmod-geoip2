@@ -43,6 +43,6 @@ jobs:
       run: |
         curl -Os https://uploader.codecov.io/latest/linux/codecov 
         chmod +x codecov
-        ./codecov -g -t ${{ secrets.CODECOV_TOKEN }}
+        ./codecov -g -v -t ${{ secrets.CODECOV_TOKEN }}
     - name: make distcheck
       run: make distcheck
