@@ -40,6 +40,9 @@ jobs:
       continue-on-error: true
     - name: codecov
       if: matrix.compiler == 'gcc'
-      run: curl -s https://codecov.io/bash | bash -s -- -t ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        curl -Os https://uploader.codecov.io/latest/linux/codecov 
+        chmod +x codecov
+        ./codecov -t ${{ secrets.CODECOV_TOKEN }}
     - name: make distcheck
       run: make distcheck
