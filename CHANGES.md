@@ -1,6 +1,12 @@
 ## unreleased
 
+* Move repository to varnishcache-friends
+
+## 1.3.0 - 2022-06-16
+
 * Fix null ip handling (#42).
+* Drop support for Varnish 6.4, 6.5 and 6.6, and add support for
+  7.0 and 7.1.
 
 ## 1.2.2 - 2021-04-23
 
