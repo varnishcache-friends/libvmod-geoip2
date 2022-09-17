@@ -43,8 +43,8 @@ CLEANFILES = $(builddir)/vcc_if.c \
 
 if USE_LCOV
 check-local:
-	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).info
-	$(GENHTML) -o lcov .libs/$(PACKAGE).info
+	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).txt
+	$(GENHTML) -o lcov .libs/$(PACKAGE).txt
 	$(GCOV) -o .libs/libvmod_geoip2_la-vcc_if.gcno vmod_geoip2.c
 
 clean-local:
