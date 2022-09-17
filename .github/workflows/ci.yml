@@ -20,10 +20,9 @@ jobs:
       with:
         submodules: recursive
     - name: apt-get
-      run: sudo apt-get install -y libedit-dev lcov python3-docutils python3-sphinx
+      run: sudo apt-get install -y lcov libedit-dev libmaxminddb-dev python3-docutils python3-sphinx
     - name: prereq
       run: |
-        cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
         git clone https://github.com/varnishcache/varnish-cache.git
         cd varnish-cache && ./autogen.sh && ./configure && make && sudo make install && sudo ldconfig && cd ..
     - name: autogen.sh
@@ -41,8 +40,8 @@ jobs:
     - name: codecov
       if: matrix.compiler == 'gcc'
       run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov 
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov -f src/.libs/libvmod-geoip2.info -t ${{ secrets.CODECOV_TOKEN }} -v
+        ./codecov -v -f src/.libs/libvmod-geoip2.info -t ${{ secrets.CODECOV_TOKEN }}
     - name: make distcheck
       run: make distcheck
