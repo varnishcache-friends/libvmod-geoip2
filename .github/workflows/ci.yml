@@ -12,7 +12,7 @@ jobs:
         varnish: ['6.0', '7.1', '7.2']
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: apt-get
