@@ -5,14 +5,14 @@ on: [push, pull_request]
 jobs:
   test:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
         varnish: ['6.0', '7.1', '7.2']
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: apt-get
