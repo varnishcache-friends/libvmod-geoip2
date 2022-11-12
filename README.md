@@ -18,7 +18,7 @@ To build this VMOD you will need:
 * make
 * a C compiler, e.g. GCC or clang
 * pkg-config
-* python-docutils or docutils in macOS [1]
+* python3-docutils or docutils in macOS [1]
 * varnish-dev in Debian/Ubuntu, varnish-devel in CentOS/RedHat or
   varnish in macOS [1]
 * libmaxminddb-dev in recent Debian/Ubuntu releases, maxminddb in
