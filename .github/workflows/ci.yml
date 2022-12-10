@@ -8,17 +8,20 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         varnish: ['6.0', '7.1', '7.2']
 
     steps:
     - uses: varnishcache-friends/setup-varnish@v1
       with:
         version: ${{ matrix.varnish }}
+    - run: sudo apt-get install -y python3-docutils libmaxminddb-dev
+      if: runner.os == 'Linux'
+    - run: brew install docutils libmaxminddb
+      if: runner.os == 'macOS'
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - run: cd libmaxminddb && ./bootstrap && ./configure && make && sudo make install && cd ..
     - run: ./autogen.sh
     - run: ./configure CFLAGS="-Wall -Wextra -Werror"
     - run: make
