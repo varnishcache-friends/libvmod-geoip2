@@ -17,7 +17,7 @@ jobs:
         version: ${{ matrix.varnish }}
     - run: sudo apt-get install -y python3-docutils libmaxminddb-dev
       if: runner.os == 'Linux'
-    - run: brew install docutils libmaxminddb
+    - run: brew install automake docutils libmaxminddb
       if: runner.os == 'macOS'
     - uses: actions/checkout@v3
       with:
