@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 jobs:
   test:
+    if: success() || failure()
+
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -26,4 +28,3 @@ jobs:
     - run: ./configure CFLAGS="-Wall -Wextra -Werror"
     - run: make
     - run: make check VERBOSE=1
-      continue-on-error: true
