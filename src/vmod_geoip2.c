@@ -38,6 +38,10 @@
 
 #include "vcc_if.h"
 
+#ifndef NO_VXID
+#define NO_VXID 0
+#endif
+
 struct vmod_geoip2_geoip2 {
 	unsigned		magic;
 #define VMOD_GEOIP2_MAGIC	 	0x19800829
@@ -57,7 +61,7 @@ vslv(VRT_CTX, enum VSL_tag_e tag, const char *fmt, ...)
 	if (ctx->vsl)
 		VSLbv(ctx->vsl, tag, fmt, ap);
 	else
-		VSLv(tag, 0, fmt, ap);
+		VSLv(tag, NO_VXID, fmt, ap);
 	va_end(ap);
 }
 
@@ -75,7 +79,7 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 	AN(vpp);
 	AZ(*vpp);
 
-	VSL(SLT_Debug, 0, "geoip2.geoip2: Using maxminddb %s",
+	VSL(SLT_Debug, NO_VXID, "geoip2.geoip2: Using maxminddb %s",
 	    MMDB_lib_version());
 
 	error = MMDB_open(filename, MMDB_MODE_MMAP, &mmdb);
@@ -84,7 +88,7 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 
 		snprintf(errstr, sizeof(errstr), "geoip2.geoip2: %s",
 		    MMDB_strerror(error));
-		VSL(SLT_Error, 0, "%s", errstr);
+		VSL(SLT_Error, NO_VXID, "%s", errstr);
 		/* Send the error to the CLI too. */
 		VSB_printf(ctx->msg, "%s\n", errstr);
 		return;
