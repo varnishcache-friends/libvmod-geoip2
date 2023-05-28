@@ -84,7 +84,7 @@ vmod_geoip2__init(VRT_CTX, struct vmod_geoip2_geoip2 **vpp,
 		char errstr[512];
 
 		snprintf(errstr, sizeof(errstr),
-	   	    "geoip2.geoip2: %s",
+		    "geoip2.geoip2: %s",
 		    MMDB_strerror(error));
 		VSL(SLT_Error, NO_VXID, "%s", errstr);
 		/* Send the error to the CLI too. */
