@@ -5,7 +5,7 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topsrc}/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
 varnish v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
@@ -41,6 +41,6 @@ client c1 {
 	rxresp
 	expect resp.http.city == "London"
 	expect resp.http.country == "Japan"
-	expect resp.http.connection-type == "Dialup"
+	expect resp.http.connection-type == "Cable/DSL"
 	expect resp.http.isp == "TOT Public Company Limited"
 } -run

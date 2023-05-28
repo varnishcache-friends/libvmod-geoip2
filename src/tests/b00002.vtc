@@ -5,7 +5,7 @@ server s1 -repeat 2 {
 	txresp
 } -start
 
-shell "cp ${vmod_topsrc}/libmaxminddb/t/maxmind-db/test-data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topsrc}/maxmind-db/test-data/*.mmdb ${tmpdir}"
 
 varnish v1 -arg "-p thread_pools=1" -vcl+backend { } -start
 
