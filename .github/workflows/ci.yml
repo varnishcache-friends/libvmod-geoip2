@@ -19,7 +19,6 @@ jobs:
     steps:
     - uses: varnishcache-friends/setup-varnish@v1
       with:
-        jobs: 4
         version: master
     - run: |
         sudo apt-get update
