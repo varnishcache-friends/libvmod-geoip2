@@ -17,7 +17,9 @@ jobs:
     - uses: varnishcache-friends/setup-varnish@v1
       with:
         version: ${{ matrix.varnish }}
-    - run: sudo apt-get install -y python3-docutils libmaxminddb-dev
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-docutils libmaxminddb-dev
       if: runner.os == 'Linux'
     - run: brew install automake docutils libmaxminddb
       if: runner.os == 'macOS'
