@@ -8,40 +8,36 @@ on:
 
 jobs:
   test:
+    if: success() || failure()
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         compiler: [clang, gcc]
 
     steps:
+    - uses: varnishcache-friends/setup-varnish@v1
+      with:
+        version: master
+    - run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-docutils libmaxminddb-dev
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-    - name: apt-get
-      run: sudo apt-get install -y lcov libedit-dev libmaxminddb-dev python3-docutils python3-sphinx
-    - name: prereq
-      run: |
-        git clone https://github.com/varnishcache/varnish-cache.git
-        cd varnish-cache && ./autogen.sh && ./configure && make && sudo make install && sudo ldconfig && cd ..
-    - name: autogen.sh
-      run: ./autogen.sh
+    - run: ./autogen.sh
     - name: enable gcov
       if: matrix.compiler == 'gcc'
       run: echo "CONFIGURE_ARGS=--enable-gcov" >> $GITHUB_ENV
     - name: configure
       run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror" $CONFIGURE_ARGS
-    - name: make
-      run: make
-    - name: make check
-      run: make check VERBOSE=1
-      continue-on-error: true
+    - run: make
+    - run: make check VERBOSE=1
     - name: codecov
       if: matrix.compiler == 'gcc'
       run: |
         curl -Os https://uploader.codecov.io/latest/linux/codecov
         chmod +x codecov
         ./codecov -v -f src/.libs/libvmod-geoip2.info -t ${{ secrets.CODECOV_TOKEN }}
-    - name: make distcheck
-      run: make distcheck
+    - run: make distcheck
