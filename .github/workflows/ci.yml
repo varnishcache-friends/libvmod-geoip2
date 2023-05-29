@@ -18,8 +18,6 @@ jobs:
 
     steps:
     - uses: varnishcache-friends/setup-varnish@v1
-      with:
-        version: master
     - run: |
         sudo apt-get update
         sudo apt-get install -y python3-docutils libmaxminddb-dev
