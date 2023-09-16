@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        varnish: ['6.0', '7.2', '7.3']
+        varnish: ['6.0', '7.3', '7.4']
 
     steps:
     - uses: varnishcache-friends/setup-varnish@v1
