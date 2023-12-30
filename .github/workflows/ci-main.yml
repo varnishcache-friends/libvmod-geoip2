@@ -28,6 +28,7 @@ jobs:
       if: runner.os == 'Linux'
     - run: brew install automake docutils libmaxminddb
       if: runner.os == 'macOS'
+      continue-on-error: true
     - uses: actions/checkout@v3
       with:
         submodules: recursive
