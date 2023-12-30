@@ -1,6 +1,10 @@
-name: ci
+name: ci-main
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "11 3 * * 6"
 
 jobs:
   test:
@@ -10,6 +14,7 @@ jobs:
 
     strategy:
       matrix:
+        compiler: [clang, gcc]
         os: [ubuntu-latest, macos-latest]
         varnish: ['6.0', '7.3', '7.4']
 
@@ -27,6 +32,6 @@ jobs:
       with:
         submodules: recursive
     - run: ./autogen.sh
-    - run: ./configure CFLAGS="-Wall -Wextra -Werror"
+    - run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror"
     - run: make
     - run: make check VERBOSE=1
