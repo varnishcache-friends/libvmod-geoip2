@@ -1,7 +1,7 @@
 libvmod-geoip2
 ==============
 
-![ci](https://github.com/varnishcache-friends/libvmod-geoip2/workflows/ci-main/badge.svg?branch=main)
+![ci](https://github.com/varnishcache-friends/libvmod-geoip2/workflows/ci-main/badge.svg)
 [![codecov](https://codecov.io/gh/varnishcache-friends/libvmod-geoip2/branch/devel/graph/badge.svg)](https://codecov.io/gh/varnishcache-friends/libvmod-geoip2)
 
 ## About
