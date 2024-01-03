@@ -5,7 +5,7 @@ server s1 {
 	txresp
 } -start
 
-shell "cp ${vmod_topsrc}/maxmind-db/test-data/*.mmdb ${tmpdir}"
+shell "cp ${vmod_topsrc}/src/tests/libvmod-geoip2.mmdb ${tmpdir}"
 
 varnish v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
@@ -13,7 +13,7 @@ varnish v1 -vcl+backend {
 	import vtc;
 
 	sub vcl_init {
-		new db = geoip2.geoip2("${tmpdir}/GeoIP2-City-Test.mmdb");
+		new db = geoip2.geoip2("${tmpdir}/libvmod-geoip2.mmdb");
 		std.log(db.lookup("city/names/en", vtc.no_ip()));
 	}
 } -start
