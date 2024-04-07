@@ -16,7 +16,7 @@ jobs:
       matrix:
         compiler: [clang, gcc]
         os: [ubuntu-latest]
-        varnish: ['6.0', '7.3', '7.4']
+        varnish: ['6.0', '7.4', '7.5']
 
     steps:
     - uses: varnishcache-friends/setup-varnish@v1
