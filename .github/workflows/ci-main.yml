@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         compiler: [clang, gcc]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         varnish: ['6.0', '7.4', '7.5']
 
     steps:
