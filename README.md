@@ -8,7 +8,7 @@ libvmod-geoip2
 
 A Varnish master VMOD to query MaxMind GeoIP2 DB files.
 
-For Varnish 6.0, 7.3 and 7.4 refer to main branch.  Older Varnish
+For Varnish 6.0, 7.4 and 7.5 refer to main branch.  Older Varnish
 versions are no longer supported.
 
 ## Requirements
