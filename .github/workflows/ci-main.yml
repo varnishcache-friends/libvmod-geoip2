@@ -16,22 +16,22 @@ jobs:
       matrix:
         compiler: [clang, gcc]
         os: [ubuntu-latest, macos-latest]
-        varnish: ['6.0', '7.4', '7.5']
+        varnish: ["6.0", "7.6", "7.7"]
 
     steps:
-    - uses: varnishcache-friends/setup-varnish@v1
-      with:
-        version: ${{ matrix.varnish }}
-    - run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-docutils libmaxminddb-dev
-      if: runner.os == 'Linux'
-    - run: brew install automake docutils libmaxminddb
-      if: runner.os == 'macOS'
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - run: ./autogen.sh
-    - run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror"
-    - run: make
-    - run: make check VERBOSE=1
+      - uses: varnishcache-friends/setup-varnish@v1
+        with:
+          version: ${{ matrix.varnish }}
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-docutils libmaxminddb-dev
+        if: runner.os == 'Linux'
+      - run: brew install automake docutils libmaxminddb
+        if: runner.os == 'macOS'
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - run: ./autogen.sh
+      - run: CC=${{ matrix.compiler }} ./configure CFLAGS="-Wall -Wextra -Werror"
+      - run: make
+      - run: make check VERBOSE=1
