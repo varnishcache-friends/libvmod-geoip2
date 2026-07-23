@@ -1,6 +1,7 @@
 ## unreleased
 
 * Move repository to varnishcache-friends
+* Migration to [VCDK](https://git.sr.ht/~dridi/vcdk)
 
 ## 1.3.0 - 2022-06-16
 

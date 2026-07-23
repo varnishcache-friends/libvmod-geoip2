@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+set -u
+
+ROOT_DIR=$(dirname "$0")
+
+pkg-config --exists --print-errors vinylapi
+
+VINYLAPI_DATAROOTDIR=$(pkg-config --variable=datarootdir vinylapi)
+export VINYLAPI_DATAROOTDIR
+
+mkdir -p m4
+autoreconf -i "$ROOT_DIR"
+
+"$ROOT_DIR"/configure "$@"

@@ -1,24 +1,40 @@
+AM_CFLAGS = $(VARNISHAPI_CFLAGS)
 
-TESTS_ENVIRONMENT = PATH=$(VARNISH_BINDIR):$(VARNISH_SBINDIR):$$PATH
+# Modules
 
-vmoddir = $(VMOD_DIR)
-vmod_LTLIBRARIES = libvmod_geoip2.la
+vmod_LTLIBRARIES = \
+	libvmod_geoip2.la
 
-libvmod_geoip2_la_CFLAGS = $(VMOD_INCLUDES) $(MAXMINDDB_CFLAGS)
+libvmod_geoip2_la_CFLAGS = \
+	$(VMOD_INCLUDES) $(MAXMINDDB_CFLAGS)
+
 libvmod_geoip2_la_LDFLAGS = -module -export-dynamic -avoid-version -shared \
 	$(LIBS) $(MAXMINDDB_LIBS)
 
 libvmod_geoip2_la_SOURCES = \
 	vmod_geoip2.c
+
 nodist_libvmod_geoip2_la_SOURCES = \
-	vcc_if.c \
-	vcc_if.h
+	vcc_geoip2_if.c \
+	vcc_geoip2_if.h
 
-dist_man_MANS = vmod_geoip2.3
+vmod_vcs_version.txt: $(nodist_libvmod_hoailona_la_SOURCES)
 
-VTC_LOG_COMPILER = $(VARNISHTEST) -v \
-	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+DISTCLEANFILES = vmod_vcs_version.txt
+
+@BUILD_VMOD_GEOIP2@
+
+# Test suite
+
+AM_TESTS_ENVIRONMENT = \
+	PATH="$(abs_builddir):$(VARNISH_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VARNISH_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
+VTC_LOG_COMPILER = $(VARNISHTEST) -v -Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+AM_VTC_LOG_FLAGS = \
+	-p vcl_path="$(abs_top_srcdir)/vcl:$(VARNISHAPI_VCLDIR)" \
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VARNISHAPI_VMODDIR)"
+
 TESTS = @VMOD_TESTS@
 
 $(libvmod_geoip2_la_OBJECTS): vcc_if.h
@@ -31,22 +47,19 @@ vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
 vmod_geoip2.3: vmod_geoip2.man.rst
 	$(RST2MAN) $? $@
 
-EXTRA_DIST = vmod_geoip2.vcc \
+# Documentation
+
+dist_doc_DATA = vmod_geoip2.vcc \
 	tests/libvmod-geoip2.mmdb \
 	$(TESTS)
 
-CLEANFILES = $(builddir)/vcc_if.c \
-	$(builddir)/vcc_if.h \
-	$(builddir)/vmod_geoip2.man.rst \
-	$(builddir)/vmod_geoip2.rst \
-	$(builddir)/$(dist_man_MANS)
-
-if USE_LCOV
-check-local:
-	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).info
-	$(GENHTML) -o lcov .libs/$(PACKAGE).info
-	$(GCOV) -o .libs/libvmod_geoip2_la-vcc_if.gcno vmod_geoip2.c
-
-clean-local:
-	rm -rf lcov
+if HAVE_VCS_VMOD_VERSION
+dist_doc_DATA += vmod_vcs_version.txt
 endif
+
+dist_man_MANS = \
+	vmod_geoip2.3
+
+.rst.1:
+	$(AM_V_GEN) $(RST2MAN) $< $@
+

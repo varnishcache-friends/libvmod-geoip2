@@ -36,7 +36,7 @@
 #include "vsa.h"
 #include "vsb.h"
 
-#include "vcc_if.h"
+#include "vcc_geoip2_if.h"
 
 struct vmod_geoip2_geoip2 {
 	unsigned		magic;
