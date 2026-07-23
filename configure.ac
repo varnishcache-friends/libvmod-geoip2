@@ -14,6 +14,22 @@ AC_DISABLE_STATIC
 AC_PROG_CC_C99
 AC_PROG_LIBTOOL
 
+AC_ARG_WITH([lcov],
+    AS_HELP_STRING(
+        [--with-lcov=PATH],
+        [Location of lcov to generate coverage data (auto)]),
+    [LCOV="$withval"],
+    [AC_CHECK_PROGS(LCOV, [lcov], [])])
+AM_CONDITIONAL(HAVE_LCOV, [test -n "$LCOV"])
+
+AC_ARG_WITH([genhtml],
+    AS_HELP_STRING(
+        [--with-genhtml=PATH],
+        [Location of genhtml to generate coverage reports (auto)]),
+    [GENHTML="$withval"],
+    [AC_CHECK_PROGS(GENHTML, [genhtml], [])])
+AM_CONDITIONAL(HAVE_GENHTML, [test -n "$GENHTML"])
+
 AC_ARG_ENABLE([gcov],
   [AS_HELP_STRING([--enable-gcov],
      [enable code coverage analysis (default=no)])],

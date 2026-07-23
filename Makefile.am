@@ -5,3 +5,6 @@ DISTCHECK_CONFIGURE_FLAGS = VMOD_DIR='$${libdir}/vinyl/vmods' RSTMAN=:
 SUBDIRS = src
 
 dist_doc_DATA = LICENSE README.md
+
+coverage:
+	$(MAKE) $(AM_MAKEFLAGS) -C src coverage
