@@ -1,4 +1,4 @@
-AM_CFLAGS = $(VARNISHAPI_CFLAGS)
+AM_CFLAGS = $(VINYLAPI_CFLAGS)
 
 # Modules
 
@@ -18,7 +18,7 @@ nodist_libvmod_geoip2_la_SOURCES = \
 	vcc_geoip2_if.c \
 	vcc_geoip2_if.h
 
-vmod_vcs_version.txt: $(nodist_libvmod_hoailona_la_SOURCES)
+vmod_vcs_version.txt: $(nodist_libvmod_geoip2_la_SOURCES)
 
 DISTCLEANFILES = vmod_vcs_version.txt
 
@@ -27,25 +27,15 @@ DISTCLEANFILES = vmod_vcs_version.txt
 # Test suite
 
 AM_TESTS_ENVIRONMENT = \
-	PATH="$(abs_builddir):$(VARNISH_TEST_PATH):$(PATH)" \
-	LD_LIBRARY_PATH="$(VARNISH_LIBRARY_PATH)"
+	PATH="$(abs_builddir):$(VINYL_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
-VTC_LOG_COMPILER = $(VARNISHTEST) -v -Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+VTC_LOG_COMPILER = vinyltest -v -Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
 AM_VTC_LOG_FLAGS = \
-	-p vcl_path="$(abs_top_srcdir)/vcl:$(VARNISHAPI_VCLDIR)" \
-	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VARNISHAPI_VMODDIR)"
+	-p vcl_path="$(abs_top_srcdir)/vcl:$(VINYLAPI_VCLDIR)" \
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VINYLAPI_VMODDIR)"
 
 TESTS = @VMOD_TESTS@
-
-$(libvmod_geoip2_la_OBJECTS): vcc_if.h
-
-vcc_if.h vmod_geoip2.man.rst vmod_geoip2.rst: vcc_if.c
-
-vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
-	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
-
-vmod_geoip2.3: vmod_geoip2.man.rst
-	$(RST2MAN) $? $@
 
 # Documentation
 
@@ -62,4 +52,3 @@ dist_man_MANS = \
 
 .rst.1:
 	$(AM_V_GEN) $(RST2MAN) $< $@
-

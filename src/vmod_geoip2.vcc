@@ -25,7 +25,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-$Module geoip2 3 "Varnish GeoIP2 Lookup Module"
+$Module geoip2 3 "Vinyl GeoIP2 Lookup Module"
 
 DESCRIPTION
 ===========
@@ -90,7 +90,7 @@ SEE ALSO
 ========
 
 * `mmdblookup(1)`
-* `varnishlog(1)`
+* `vinyllog(1)`
 * `vsl(7)`
 * `GeoIP2 Databases <https://www.maxmind.com/en/geoip2-databases>`
 * `GeoIP2 Update program <https://github.com/maxmind/geoipupdate>`

@@ -2,6 +2,7 @@
 
 * Move repository to varnishcache-friends
 * Migration to [VCDK](https://git.sr.ht/~dridi/vcdk)
+* [VMOD vinylization](https://vinyl-cache.org/organization/new-identity.html#new-identity)
 
 ## 1.3.0 - 2022-06-16
 

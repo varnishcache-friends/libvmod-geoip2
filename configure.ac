@@ -4,7 +4,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/vmod_geoip2.vcc)
 AM_CONFIG_HEADER(config.h)
-m4_ifndef([VARNISH_VMOD_INCLUDES], AC_MSG_ERROR([varnish.m4 is required.]))
+m4_ifndef([VINYL_VMOD_INCLUDES], AC_MSG_ERROR([vinyl.m4 is required.]))
 
 AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign color-tests parallel-tests])
 AM_SILENT_RULES([yes])
@@ -40,25 +40,25 @@ AM_PATH_PYTHON([3.4], [], [
 AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 
-PKG_CHECK_VAR([VARNISH_PREFIX], [varnishapi], [prefix])
-PKG_CHECK_VAR([VARNISH_BINDIR], [varnishapi], [bindir])
-PKG_CHECK_VAR([VARNISH_SBINDIR], [varnishapi], [sbindir])
-PKG_CHECK_VAR([VARNISH_DATAROOT], [varnishapi], [datarootdir])
+PKG_CHECK_VAR([VINYL_PREFIX], [vinylapi], [prefix])
+PKG_CHECK_VAR([VINYL_BINDIR], [vinylapi], [bindir])
+PKG_CHECK_VAR([VINYL_SBINDIR], [vinylapi], [sbindir])
+PKG_CHECK_VAR([VINYL_DATAROOT], [vinylapi], [datarootdir])
 
-VARNISH_VMOD_INCLUDES
-VARNISH_VMOD_DIR
-VARNISH_VMODTOOL
+VINYL_VMOD_INCLUDES
+VINYL_VMOD_DIR
+VINYL_VMODTOOL
 
-ac_default_prefix=$VARNISH_PREFIX
+ac_default_prefix=$VINYL_PREFIX
 
-AC_PATH_PROG([VARNISHTEST], [varnishtest], [], [$VARNISH_BINDIR:$PATH])
-AC_PATH_PROG([VARNISHD], [varnishd], [], [$VARNISH_SBINDIR:$PATH])
+AC_PATH_PROG([VINYLTEST], [vtest], [], [$VINYL_BINDIR:$PATH])
+AC_PATH_PROG([VINYLD], [vinyld], [], [$VINYL_SBINDIR:$PATH])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
 AC_SUBST(VMOD_TESTS)
 
-VARNISH_PREREQ([6.0.0])
-VARNISH_VMODS([hoailona])
+VINYL_PREREQ([9.0.0])
+VINYL_VMODS([geoip2])
 
 AM_PROG_AR
 
@@ -90,7 +90,7 @@ AC_OUTPUT
 AS_ECHO("
 	==== $PACKAGE_STRING ====
 
-	vinyl:        $VARNISH_VERSION
+	vinyl:        $VINYL_VERSION
 	prefix:       $prefix
 	vmoddir:      $vmoddir
 	vcldir:       $vcldir
