@@ -9,7 +9,7 @@ libvmod-geoip2
 A Vinyl main VMOD to query MaxMind GeoIP2 DB files.
 
 For Varnish 6.0, 8.0 and Vinyl 9.0 refer to main branch.  Other versions are
-no longer supported.
+not supported.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ To build this VMOD you will need:
 * a C compiler, e.g. GCC or clang
 * pkg-config
 * python3-docutils or docutils in macOS [1]
-* Vinyl master built from sources
+* Vinyl main built from sources
 * libmaxminddb-dev in recent Debian/Ubuntu releases, maxminddb in
   macOS [1]. See also <https://github.com/maxmind/libmaxminddb>
 
