@@ -12,5 +12,5 @@ installed software in a non-standard prefix.
 _EOF
 	exit 1
 fi
-export VINYLAPI_DATAROOT=${dataroot}
+export VINYLAPI_DATAROOTDIR=${dataroot}
 autoreconf -vif -I${dataroot}/aclocal

@@ -1,52 +1,40 @@
+AM_CFLAGS = $(VINYLAPI_CFLAGS) $(MAXMINDDB_CFLAGS)
 
-TESTS_ENVIRONMENT = PATH=$(VINYLAPI_BINDIR):$(VINYLAPI_SBINDIR):$$PATH
-
-vmoddir = $(VMOD_DIR)
 vmod_LTLIBRARIES = libvmod_geoip2.la
 
-libvmod_geoip2_la_CFLAGS = $(VMOD_INCLUDES) $(MAXMINDDB_CFLAGS)
-libvmod_geoip2_la_LDFLAGS = -module -export-dynamic -avoid-version -shared \
-	$(LIBS) $(MAXMINDDB_LIBS)
+libvmod_geoip2_la_LDFLAGS = $(VMOD_LDFLAGS) $(MAXMINDDB_LIBS)
 
 libvmod_geoip2_la_SOURCES = \
 	vmod_geoip2.c
 nodist_libvmod_geoip2_la_SOURCES = \
-	vcc_if.c \
-	vcc_if.h
+	vcc_geoip2_if.c \
+	vcc_geoip2_if.h
 
 dist_man_MANS = vmod_geoip2.3
 
-VTC_LOG_COMPILER = $(VINYLTEST) -v \
-	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+@BUILD_VMOD_GEOIP2@
+
+AM_TESTS_ENVIRONMENT = \
+	PATH="$(abs_builddir):$(VINYL_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
+VTC_LOG_COMPILER = vinyltest -v
+AM_VTC_LOG_FLAGS = \
+	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
+
 TESTS = @VMOD_TESTS@
-
-$(libvmod_geoip2_la_OBJECTS): vcc_if.h
-
-vcc_if.h vmod_geoip2.man.rst vmod_geoip2.rst: vcc_if.c
-
-vcc_if.c: $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
-	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod_geoip2.vcc
-
-vmod_geoip2.3: vmod_geoip2.man.rst
-	$(RST2MAN) $? $@
 
 EXTRA_DIST = vmod_geoip2.vcc \
 	tests/libvmod-geoip2.mmdb \
 	$(TESTS)
 
-CLEANFILES = $(builddir)/vcc_if.c \
-	$(builddir)/vcc_if.h \
-	$(builddir)/vmod_geoip2.man.rst \
-	$(builddir)/vmod_geoip2.rst \
-	$(builddir)/$(dist_man_MANS) \
-	$(builddir)/vmod_vcs_version.txt
+DISTCLEANFILES = vmod_vcs_version.txt
 
 if USE_LCOV
 check-local:
 	$(LCOV) -c -d .libs -o .libs/$(PACKAGE).info
 	$(GENHTML) -o lcov .libs/$(PACKAGE).info
-	$(GCOV) -o .libs/libvmod_geoip2_la-vcc_if.gcno vmod_geoip2.c
+	$(GCOV) -o .libs/libvmod_geoip2_la-vcc_geoip2_if.gcno vmod_geoip2.c
 
 clean-local:
 	rm -rf lcov

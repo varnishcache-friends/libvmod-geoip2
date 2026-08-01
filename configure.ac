@@ -2,15 +2,13 @@ AC_INIT([libvmod-geoip2], [devel])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/vmod_geoip2.vcc)
-AM_CONFIG_HEADER(config.h)
-m4_ifndef([VINYL_VMOD_INCLUDES], AC_MSG_ERROR([vinyl.m4 is required.]))
+AC_CONFIG_HEADERS([config.h])
+m4_ifndef([VINYL_VMODS], AC_MSG_ERROR([vinyl.m4 is required.]))
 
 AM_INIT_AUTOMAKE([foreign color-tests parallel-tests])
 
-AC_DISABLE_STATIC
-
 AC_PROG_CC_C99
-AC_PROG_LIBTOOL
+LT_INIT([disable-static])
 
 AC_ARG_ENABLE([gcov],
   [AS_HELP_STRING([--enable-gcov],
@@ -28,29 +26,11 @@ PKG_CHECK_EXISTS([libmaxminddb], [
     AC_MSG_ERROR([maxminddb is required.]))
 ])
 
-m4_define_default([_AM_PYTHON_INTERPRETER_LIST],
-  [python3.9 python3.8 python3.7 python3.6 python3.5 dnl
-   python3.4 python3 python])
-AM_PATH_PYTHON([3.4], [], [
-  AC_MSG_ERROR([Python 3.4 or later is required.])
-])
-
 AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 
-PKG_CHECK_VAR([VINYLAPI_PREFIX], [vinylapi], [prefix])
-PKG_CHECK_VAR([VINYLAPI_BINDIR], [vinylapi], [bindir])
-PKG_CHECK_VAR([VINYLAPI_SBINDIR], [vinylapi], [sbindir])
-PKG_CHECK_VAR([VINYLAPI_DATAROOT], [vinylapi], [datarootdir])
-
-VINYL_VMOD_INCLUDES
-VINYL_VMOD_DIR
-VINYL_VMODTOOL
-
-ac_default_prefix=$VINYLAPI_PREFIX
-
-AC_PATH_PROG([VINYLTEST], [vinyltest], [], [$VINYLAPI_BINDIR:$PATH])
-AC_PATH_PROG([VINYLD], [vinyld], [], [$VINYLAPI_SBINDIR:$PATH])
+VINYL_PREREQ([9.0.0])
+VINYL_VMODS([geoip2])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
 AC_SUBST(VMOD_TESTS)
