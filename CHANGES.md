@@ -1,6 +1,7 @@
 ## unreleased
 
 * Move repository to varnishcache-friends
+* Rebrand the build to Vinyl Cache.
 
 ## 1.3.0 - 2022-06-16
 
