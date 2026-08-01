@@ -17,10 +17,10 @@ jobs:
         compiler: [clang, gcc]
 
     steps:
-    - uses: varnishcache-friends/setup-varnish@v1
+    - uses: varnishcache-friends/setup-vinyl@v2
     - run: |
         sudo apt-get update
-        sudo apt-get install -y python3-docutils libmaxminddb-dev
+        sudo apt-get install -y pkg-config python3-docutils libmaxminddb-dev
     - uses: actions/checkout@v4
       with:
         submodules: recursive

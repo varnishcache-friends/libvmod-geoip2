@@ -1,4 +1,4 @@
-varnishtest "Test error cases"
+vtest "Test error cases"
 
 server s1 -repeat 2 {
 	rxreq
@@ -7,9 +7,9 @@ server s1 -repeat 2 {
 
 shell "cp ${vmod_topsrc}/src/tests/libvmod-geoip2.mmdb ${tmpdir}"
 
-varnish v1 -arg "-p thread_pools=1" -vcl+backend { } -start
+vinyl v1 -arg "-p thread_pools=1" -vcl+backend { } -start
 
-varnish v1 -errvcl "Error opening the specified MaxMind DB file" {
+vinyl v1 -errvcl "Error opening the specified MaxMind DB file" {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	backend default {
 		.host = "127.0.0.1";
@@ -20,7 +20,7 @@ varnish v1 -errvcl "Error opening the specified MaxMind DB file" {
 	}
 }
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import geoip2 from "${vmod_topbuild}/src/.libs/libvmod_geoip2.so";
 	import std;
 
@@ -77,12 +77,12 @@ client c1 {
 
 logexpect l1 -wait
 
-varnish v1 -vcl+backend { }
+vinyl v1 -vcl+backend { }
 
 client c1 {
 	txreq
 	rxresp
 } -run
 
-varnish v1 -cliok "vcl.discard vcl1"
-varnish v1 -cliok "vcl.discard vcl3"
+vinyl v1 -cliok "vcl.discard vcl1"
+vinyl v1 -cliok "vcl.discard vcl3"
