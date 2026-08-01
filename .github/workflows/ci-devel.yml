@@ -2,14 +2,13 @@ name: ci-devel
 
 on:
   push:
+    branches: [devel, main]
   pull_request:
   schedule:
     - cron: "11 3 * * 6"
 
 jobs:
   test:
-    if: success() || failure()
-
     runs-on: ubuntu-latest
 
     strategy:
