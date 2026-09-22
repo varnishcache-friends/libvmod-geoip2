@@ -1,4 +1,4 @@
-AM_CFLAGS = $(VINYLAPI_CFLAGS) $(MAXMINDDB_CFLAGS)
+AM_CFLAGS = $(VCACHEAPI_CFLAGS) $(MAXMINDDB_CFLAGS)
 
 vmod_LTLIBRARIES = libvmod_geoip2.la
 
@@ -15,10 +15,10 @@ dist_man_MANS = vmod_geoip2.3
 @BUILD_VMOD_GEOIP2@
 
 AM_TESTS_ENVIRONMENT = \
-	PATH="$(abs_builddir):$(VINYL_TEST_PATH):$(PATH)" \
-	LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
+	PATH="$(abs_builddir):$(VCACHE_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VCACHE_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
-VTC_LOG_COMPILER = vinyltest -v
+VTC_LOG_COMPILER = vtest -v -E@VTESTEXT@
 AM_VTC_LOG_FLAGS = \
 	-Dvmod_topbuild=$(abs_top_builddir) -Dvmod_topsrc=$(abs_top_srcdir)
 

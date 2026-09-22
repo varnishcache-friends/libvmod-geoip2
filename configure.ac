@@ -3,7 +3,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/vmod_geoip2.vcc)
 AC_CONFIG_HEADERS([config.h])
-m4_ifndef([VINYL_VMODS], AC_MSG_ERROR([vinyl.m4 is required.]))
 
 AM_INIT_AUTOMAKE([foreign color-tests parallel-tests])
 
@@ -29,8 +28,11 @@ PKG_CHECK_EXISTS([libmaxminddb], [
 AC_PATH_PROGS([RST2MAN], [rst2man rst2man.py])
 test -z "$RST2MAN" && AC_MSG_ERROR([rst2man is required.])
 
-VINYL_PREREQ([9.0.0])
-VINYL_VMODS([geoip2])
+VCACHE_REQUIRE(
+	[[vinyl],[9.1.0]],
+	[[varnish],[9.1.0]],
+)
+VCACHE_VMODS([geoip2])
 
 VMOD_TESTS="$(cd $srcdir/src && echo tests/*.vtc)"
 AC_SUBST(VMOD_TESTS)
